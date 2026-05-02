@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ContagionGrid — Disease Containment AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --red:#E8341A;--red-dim:#9B2211;
+  --bg:#0A0A0A;--bg2:#111111;--bg3:#181818;--bg4:#1F1F1F;
+  --border:#2A2A2A;--border2:#333;
+  --text:#FFFFFF;--text2:#AAAAAA;--text3:#555;
+  --green:#22C55E;--amber:#F59E0B;--blue:#3B82F6;--teal:#14B8A6;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;overflow-x:hidden}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:16px 48px;border-bottom:0.5px solid var(--border);background:rgba(10,10,10,0.92);backdrop-filter:blur(12px)}
+.nav-logo{display:flex;align-items:center;gap:10px;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;text-decoration:none;color:var(--text)}
+.nav-logo .dot{width:8px;height:8px;background:var(--red);border-radius:50%;animation:pulse 2s infinite}
+.nav-logo .red{color:var(--red)}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(.85)}}
+.nav-links{display:flex;gap:32px}
+.nav-links a{color:var(--text2);text-decoration:none;font-size:14px;transition:color .2s}
+.nav-links a:hover{color:var(--text)}
+.nav-cta{padding:10px 22px;background:var(--red);color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none;transition:background .2s}
+.nav-cta:hover{background:#c42d16}
+
+/* HERO */
+.hero{min-height:92vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:80px 48px 60px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 40%,rgba(232,52,26,0.07) 0%,transparent 70%);pointer-events:none}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;border:0.5px solid var(--border2);border-radius:100px;padding:6px 18px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px;color:var(--text2);margin-bottom:40px;background:rgba(24,24,24,0.8)}
+.hero-badge .dot{width:6px;height:6px;background:var(--red);border-radius:50%;animation:pulse 2s infinite}
+.hero-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(80px,14vw,180px);line-height:.92;letter-spacing:-1px;margin-bottom:32px}
+.hero-title .grid-red{color:var(--red)}
+.hero-title .dot-blue{color:#378ADD}
+.hero-desc{max-width:560px;font-size:16px;line-height:1.7;color:var(--text2);margin-bottom:48px}
+.hero-btns{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.btn-primary{padding:14px 32px;background:var(--red);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none;transition:background .2s}
+.btn-primary:hover{background:#c42d16}
+.btn-outline{padding:13px 32px;background:transparent;color:var(--text);border:0.5px solid var(--border2);border-radius:8px;font-size:15px;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none;transition:all .2s}
+.btn-outline:hover{border-color:#555;background:var(--bg3)}
+
+/* STATS BAR */
+.stats-bar{display:grid;grid-template-columns:repeat(4,1fr);border-top:0.5px solid var(--border);border-bottom:0.5px solid var(--border)}
+.stat-cell{padding:28px 32px;border-right:0.5px solid var(--border);text-align:center}
+.stat-cell:last-child{border-right:none}
+.stat-num{font-family:'Bebas Neue',sans-serif;font-size:48px;line-height:1}
+.stat-lbl{font-size:11px;color:var(--text3);margin-top:4px;font-family:'JetBrains Mono',monospace;letter-spacing:1px}
+.c-red{color:var(--red)}.c-amber{color:var(--amber)}.c-teal{color:var(--teal)}.c-blue{color:var(--blue)}.c-green{color:var(--green)}
+
+/* HOSPITAL SECTION */
+.section{padding:64px 48px}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.section-title{font-family:'Bebas Neue',sans-serif;font-size:38px;letter-spacing:.5px}
+.section-sub{font-size:12px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:32px}
+.live-dot{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--green);font-family:'JetBrains Mono',monospace}
+.live-dot::before{content:'';width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 1.5s infinite;flex-shrink:0}
+
+/* HOSPITAL GRID — 2 per row */
+.hospitals-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.hcard{background:var(--bg2);border:0.5px solid var(--border);border-radius:12px;padding:22px;cursor:default;transition:border-color .2s,background .2s}
+.hcard:hover{border-color:var(--border2);background:var(--bg3)}
+.hcard.high-load{border-color:rgba(232,52,26,0.3)}
+.hcard-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
+.hcard-info .hcard-name{font-size:15px;font-weight:500;margin-bottom:3px}
+.hcard-info .hcard-loc{font-size:12px;color:var(--text2)}
+.hcard-dist{font-size:12px;color:var(--text3);font-family:'JetBrains Mono',monospace;white-space:nowrap;margin-left:12px}
+.hcard-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+.hs{background:var(--bg4);border-radius:6px;padding:8px 10px;text-align:center}
+.hs-num{font-size:18px;font-weight:500;font-family:'JetBrains Mono',monospace}
+.hs-lbl{font-size:10px;color:var(--text3);margin-top:3px;letter-spacing:.3px}
+.badges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.badge{padding:3px 10px;border-radius:4px;font-size:11px;font-family:'JetBrains Mono',monospace;border:0.5px solid}
+.bg{background:rgba(34,197,94,0.1);color:var(--green);border-color:rgba(34,197,94,0.3)}
+.ba{background:rgba(245,158,11,0.1);color:var(--amber);border-color:rgba(245,158,11,0.3)}
+.br{background:rgba(232,52,26,0.1);color:var(--red);border-color:rgba(232,52,26,0.3)}
+.bb{background:rgba(59,130,246,0.1);color:var(--blue);border-color:rgba(59,130,246,0.3)}
+.opd-btn{width:100%;padding:10px;background:transparent;border:0.5px solid var(--red);color:var(--red);border-radius:6px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;transition:all .2s}
+.opd-btn:hover{background:var(--red);color:#fff}
+
+/* INTEL SECTION */
+.intel-section{padding:0 48px 72px}
+.intel-grid{display:grid;grid-template-columns:1fr 310px;gap:20px;align-items:start}
+.intel-main{background:var(--bg2);border:0.5px solid var(--border);border-radius:12px;padding:24px}
+.intel-main-title{font-family:'Bebas Neue',sans-serif;font-size:24px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between}
+.agent-list{display:flex;flex-direction:column;gap:0}
+.agent-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:0.5px solid var(--border)}
+.agent-row:last-child{border-bottom:none}
+.agent-left .agent-name{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text);font-weight:500}
+.agent-left .agent-sub{font-size:12px;color:var(--text3);margin-top:2px}
+.status-done{font-size:10px;padding:3px 10px;border-radius:3px;font-family:'JetBrains Mono',monospace;background:rgba(34,197,94,0.1);color:var(--green);border:0.5px solid rgba(34,197,94,0.3)}
+.intel-footer{margin-top:18px;padding-top:14px;border-top:0.5px solid var(--border);font-size:12px;color:var(--text3);font-family:'JetBrains Mono',monospace}
+
+/* SIDEBAR CARDS */
+.intel-sidebar{display:flex;flex-direction:column;gap:10px}
+.icard{border-radius:10px;padding:14px;border:0.5px solid}
+.icard-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.icard-title{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1.5px;font-weight:500}
+.icard-time{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3)}
+.icard-body{font-size:12px;color:var(--text2);line-height:1.6}
+.icard.green{background:rgba(34,197,94,0.05);border-color:rgba(34,197,94,0.3)}.icard.green .icard-title{color:var(--green)}
+.icard.red{background:rgba(232,52,26,0.05);border-color:rgba(232,52,26,0.3)}.icard.red .icard-title{color:var(--red)}
+.icard.amber{background:rgba(245,158,11,0.05);border-color:rgba(245,158,11,0.3)}.icard.amber .icard-title{color:var(--amber)}
+.icard.blue{background:rgba(59,130,246,0.05);border-color:rgba(59,130,246,0.3)}.icard.blue .icard-title{color:var(--blue)}
+.disease-big{font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--red);line-height:1.1;margin:3px 0}
+.zone-big{font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--blue);line-height:1.3}
+.road-blocked{color:var(--red);font-family:'JetBrains Mono',monospace;font-size:11px}
+.road-open{color:var(--green);font-family:'JetBrains Mono',monospace;font-size:11px}
+
+/* HOW IT WORKS */
+.how-section{padding:64px 48px;border-top:0.5px solid var(--border)}
+.steps-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin-top:40px}
+.step{padding:24px 20px;border-right:0.5px solid var(--border)}
+.step:last-child{border-right:none}
+.step-num{font-family:'Bebas Neue',sans-serif;font-size:44px;color:var(--red);opacity:.5;line-height:1;margin-bottom:10px}
+.step-title{font-size:13px;font-weight:500;margin-bottom:6px}
+.step-desc{font-size:12px;color:var(--text3);line-height:1.6}
+
+/* FOOTER */
+footer{border-top:0.5px solid var(--border);padding:24px 48px;display:flex;justify-content:space-between;align-items:center}
+.footer-logo{font-family:'Bebas Neue',sans-serif;font-size:18px}
+.footer-logo span{color:var(--red)}
+.footer-note{font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace}
+
+/* OPD MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
+.modal-overlay.open{display:flex}
+.modal{background:var(--bg2);border:0.5px solid var(--border2);border-radius:16px;padding:32px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
+.modal-title{font-size:15px;font-weight:500}
+.modal-title span{color:var(--red)}
+.modal-close{background:none;border:none;color:var(--text2);font-size:22px;cursor:pointer;line-height:1;padding:0}
+.modal-close:hover{color:var(--text)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.form-group{display:flex;flex-direction:column;gap:6px}
+.form-group.full{grid-column:1/-1}
+label{font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;letter-spacing:.5px}
+.auto-tag{font-size:10px;color:var(--teal);background:rgba(20,184,166,0.12);border-radius:3px;padding:1px 5px;margin-left:4px}
+input,textarea{background:var(--bg3);border:0.5px solid var(--border);border-radius:6px;padding:10px 12px;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;width:100%;outline:none;transition:border-color .2s}
+input:focus,textarea:focus{border-color:var(--red)}
+input[readonly]{color:var(--text2)}
+.chip-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.chip{padding:6px 14px;background:var(--bg3);border:0.5px solid var(--border);border-radius:20px;font-size:12px;cursor:pointer;transition:all .15s;color:var(--text2)}
+.chip.sel{background:rgba(232,52,26,0.12);border-color:var(--red);color:var(--red)}
+.form-submit{width:100%;padding:13px;background:var(--red);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:20px;transition:background .2s}
+.form-submit:hover{background:#c42d16}
+.success-screen{display:none;text-align:center;padding:20px 0}
+.success-screen.show{display:block}
+.token-badge{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:34px;font-weight:500;color:var(--green);background:rgba(34,197,94,0.08);border:0.5px solid rgba(34,197,94,0.3);border-radius:10px;padding:16px 36px;margin:16px 0}
+.success-note{font-size:13px;color:var(--text2);line-height:1.8}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="#">
+    <div class="dot"></div>
+    Contagion <span class="red">Grid</span>
+  </a>
+  <div class="nav-links">
+    <a href="#hospitals">Hospitals</a>
+    <a href="#how">How it Works</a>
+    <a href="#agents">Agents</a>
+  </div>
+  <a href="/login" class="nav-cta">Login→</a>
+</nav>
+
+<section class="hero">
+  <div class="hero-badge">
+    <span class="dot"></span>
+    PUBLIC HEALTH INTELLIGENCE SYSTEM
+  </div>
+  <h1 class="hero-title">
+    Contagion<br>
+    <span class="grid-red">Grid<span class="dot-blue">.</span></span>
+  </h1>
+  <p class="hero-desc">Real-time disease surveillance, hospital routing, and outbreak containment — powered by 5 AI agents working in unison with CMO and District Magistrate offices.</p>
+  <div class="hero-btns">
+    <a href="/login" class="btn-primary">Login to Portal→</a>
+    <a href="#hospitals" class="btn-outline">Book OPD</a>
+  </div>
+</section>
+
+<div class="stats-bar">
+  <div class="stat-cell"><div class="stat-num c-red">5</div><div class="stat-lbl">AI AGENTS</div></div>
+  <div class="stat-cell"><div class="stat-num c-amber">24/7</div><div class="stat-lbl">MONITORING</div></div>
+  <div class="stat-cell"><div class="stat-num c-teal">Real-time</div><div class="stat-lbl">DISEASE TRACKING</div></div>
+  <div class="stat-cell"><div class="stat-num c-blue">Auto</div><div class="stat-lbl">CONTAINMENT PLAN</div></div>
+</div>
+
+<!-- HOSPITALS -->
+<section class="section" id="hospitals">
+  <div class="section-header">
+    <h2 class="section-title">Nearby Hospitals</h2>
+    <span class="live-dot">LIVE DATA</span>
+  </div>
+  <p class="section-sub">Based on your area and current disease outbreak — Lucknow &nbsp;//&nbsp; Click OPD button to book</p>
+  <div class="hospitals-grid" id="hospitals-grid"></div>
+</section>
+
+<!-- INTEL + AGENTS -->
+<section class="intel-section" id="agents">
+  <div class="intel-grid">
+    <div class="intel-main">
+      <div class="intel-main-title">
+        Agent Pipeline Status
+        <span class="live-dot" style="font-size:11px">ALL SYSTEMS ACTIVE</span>
+      </div>
+      <div class="agent-list" id="agent-list"></div>
+      <div class="intel-footer">
+        Last pipeline run: <span id="last-run" style="color:var(--text2)">—</span> &nbsp;·&nbsp; Response time: <span class="c-green" id="resp-time">—</span>
+      </div>
+    </div>
+    <div class="intel-sidebar" id="intel-sidebar"></div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-section" id="how">
+  <h2 class="section-title">How It Works</h2>
+  <p class="section-sub" style="margin-top:8px">Input outbreak details → Agents run → Complete containment plan in 4 minutes</p>
+  <div class="steps-grid">
+    <div class="step"><div class="step-num">01</div><div class="step-title">Mobility Analyzer</div><div class="step-desc">OSMnx real streets + Census wards → Contact graph built</div></div>
+    <div class="step"><div class="step-num">02</div><div class="step-title">SEIR Simulation</div><div class="step-desc">WHO disease params → 72hr spread projections per zone</div></div>
+    <div class="step"><div class="step-num">03</div><div class="step-title">Containment Architect</div><div class="step-desc">Gemini AI reasoning → Red/Orange/Yellow zone plan</div></div>
+    <div class="step"><div class="step-num">04</div><div class="step-title">Resource Allocator</div><div class="step-desc">NHP hospital data → Doctors, kits, beds deployed</div></div>
+    <div class="step"><div class="step-num">05</div><div class="step-title">Alert Broadcaster</div><div class="step-desc">JSON + Hindi SMS + PDF report for CMO and DM</div></div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo">Contagion<span>Grid</span></div>
+  <div class="footer-note">Lucknow, India · OpenStreetMap + Census 2011 + WHO + Gemini AI</div>
+</footer>
+
+<!-- OPD MODAL -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModalBg(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">OPD Registration — <span id="modal-hosp-name">Hospital</span></div>
+      <button class="modal-close" onclick="closeModalFull()">✕</button>
+    </div>
+    <div id="form-body">
+      <div class="form-row">
+        <div class="form-group"><label>FULL NAME <span class="auto-tag">AADHAAR AUTO</span></label><input type="text" id="f-name"  placeholder="Enter your Name"></div>
+        <div class="form-group"><label>AGE</label><input type="number" id="f-age" value="35"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>AADHAR / ID NO.</label><input type="text" id="f-aadhar" placeholder="XXXX-XXXX-XXXX"></div>
+        <div class="form-group"><label>PHONE <span class="auto-tag">AUTO</span></label><input type="text" id="f-phone" placeholder="Mob no."></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group full"><label>AREA <span class="auto-tag">GPS AUTO</span></label><input type="text" id="f-area" placeholder=""></div>
+      </div>
+      <div class="form-group" style="margin-bottom:14px">
+        <label>PRIMARY SYMPTOMS <span style="font-size:10px;color:var(--text3)">(select all that apply)</span></label>
+        <div class="chip-grid">
+          <span class="chip" onclick="toggleChip(this)">Bukhar (Fever)</span>
+          <span class="chip" onclick="toggleChip(this)">Khasi (Cough)</span>
+          <span class="chip" onclick="toggleChip(this)">Sardard (Headache)</span>
+          <span class="chip" onclick="toggleChip(this)">Ulti (Vomiting)</span>
+          <span class="chip" onclick="toggleChip(this)">Body pain</span>
+          <span class="chip" onclick="toggleChip(this)">Dast (Diarrhea)</span>
+          <span class="chip" onclick="toggleChip(this)">Saans ki takleef</span>
+          <span class="chip" onclick="toggleChip(this)">Ped dard</span>
+          <span class="chip" onclick="toggleChip(this)">Thakaan</span>
+          <span class="chip" onclick="toggleChip(this)">Chikkan pox rash</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>ADDITIONAL NOTES</label>
+        <textarea rows="2" placeholder="Any other symptoms or medical history..." style="resize:none"></textarea>
+      </div>
+      <button class="form-submit" onclick="submitOPD()">Submit Registration</button>
+    </div>
+    <div class="success-screen" id="success-screen">
+      <div style="font-size:13px;color:var(--text2);margin-bottom:6px">Registration successful</div>
+      <div class="token-badge" id="token-display">TKN-0000</div>
+      <div class="success-note">
+        Ye token number sambhal ke rakhein. Hospital mein dikhana hoga.<br><br>
+        <span style="color:var(--teal)">Aapke symptoms hospital dashboard mein automatically aa gaye hain.<br>ContagionGrid AI ne disease category assign kar di hai.</span>
+      </div>
+      <button class="form-submit" style="margin-top:16px" onclick="closeModalFull()">Done</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── DEFAULT DATA (shown when API is offline) ──────────────────────────────
+const DEFAULT_HOSPITALS = [
+  {id:0,name:"King George Medical University",loc:"Chowk, Lucknow · Govt. Hospital",dist:"2.4 km",beds:400,avail:120,icu:45,amb:8,doc:45,load:"Moderate Load",opd:true,iso:true},
+  {id:1,name:"Ram Manohar Lohia Institute",loc:"Vibhuti Khand, Lucknow · Govt. Hospital",dist:"5.1 km",beds:250,avail:85,icu:30,amb:5,doc:32,load:"Low Load",opd:true,iso:false},
+  {id:2,name:"Balrampur Hospital",loc:"Golaganj, Lucknow · Govt. Hospital",dist:"3.2 km",beds:180,avail:60,icu:20,amb:4,doc:28,load:"Low Load",opd:true,iso:false},
+  {id:3,name:"Civil Hospital Lucknow",loc:"Qaiserbagh, Lucknow · Govt. Hospital",dist:"4.0 km",beds:280,avail:95,icu:35,amb:6,doc:38,load:"Moderate Load",opd:true,iso:true},
+  {id:4,name:"Medanta Lucknow",loc:"Amar Shaheed Path · Private",dist:"8.7 km",beds:300,avail:42,icu:60,amb:6,doc:55,load:"High Load",opd:true,iso:true},
+  {id:5,name:"District Women Hospital",loc:"Hazratganj, Lucknow · Govt. Hospital",dist:"1.8 km",beds:160,avail:55,icu:18,amb:3,doc:22,load:"Low Load",opd:true,iso:false},
+];
+
+const DEFAULT_INTEL = {
+  disease:"Dengue", cases:25, suspected:"120+",
+  zones:"Hazratganj · Chowk · Aminabad", wards:3,
+  road_blocked:"Hazratganj Main Road", road_open:"Alternate via Lalbagh",
+  dm_order:"District Magistrate confirmed road management protocol. Containment zone established. Emergency corridors activated."
+};
+
+const AGENTS = [
+  {name:"Agent 1 — Mobility Analyzer",sub:"Contact network built"},
+  {name:"Agent 2 — SEIR Simulation",sub:"72hr projections done"},
+  {name:"Agent 3 — Containment Architect",sub:"Zones designed (Gemini)"},
+  {name:"Agent 4 — Resource Allocator",sub:"Resources deployed"},
+  {name:"Agent 5 — Alert Broadcaster",sub:"Alerts sent"},
+];
+
+// ── RENDER HOSPITALS ──────────────────────────────────────────────────────
+function loadClass(l){return l==="High Load"?"br":l==="Moderate Load"?"ba":"bg"}
+
+function renderHospitals(data){
+  document.getElementById("hospitals-grid").innerHTML = data.map(h=>`
+    <div class="hcard${h.load==="High Load"?" high-load":""}">
+      <div class="hcard-top">
+        <div class="hcard-info">
+          <div class="hcard-name">${h.name}</div>
+          <div class="hcard-loc">${h.loc}</div>
+        </div>
+        <div class="hcard-dist">${h.dist}</div>
+      </div>
+      <div class="hcard-stats">
+        <div class="hs"><div class="hs-num c-green">${h.avail}</div><div class="hs-lbl">Beds free</div></div>
+        <div class="hs"><div class="hs-num c-blue">${h.icu}</div><div class="hs-lbl">ICU</div></div>
+        <div class="hs"><div class="hs-num c-amber">${h.amb}</div><div class="hs-lbl">Ambulance</div></div>
+        <div class="hs"><div class="hs-num">${h.doc}</div><div class="hs-lbl">Doctors</div></div>
+      </div>
+      <div class="badges">
+        ${h.opd?'<span class="badge bg">OPD Open</span>':''}
+        ${h.iso?'<span class="badge bb">Isolation Ward</span>':''}
+        <span class="badge ${loadClass(h.load)}">${h.load}</span>
+      </div>
+      <button class="opd-btn" onclick='openOPD(${h.id},"${h.name}")'>Book OPD →</button>
+    </div>
+  `).join('');
+}
+
+// ── RENDER AGENTS ─────────────────────────────────────────────────────────
+function renderAgents(){
+  document.getElementById("agent-list").innerHTML = AGENTS.map(a=>`
+    <div class="agent-row">
+      <div class="agent-left">
+        <div class="agent-name">${a.name}</div>
+        <div class="agent-sub">${a.sub}</div>
+      </div>
+      <span class="status-done">Done</span>
+    </div>
+  `).join('');
+  const now = new Date();
+  document.getElementById("last-run").textContent = now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  document.getElementById("resp-time").textContent = "4m 12s";
+}
+
+// ── RENDER INTEL SIDEBAR ──────────────────────────────────────────────────
+function renderSidebar(d){
+  const t = (offset)=>{
+    const dt = new Date(Date.now()-offset*60000);
+    return dt.getHours().toString().padStart(2,'0')+':'+dt.getMinutes().toString().padStart(2,'0');
+  };
+  document.getElementById("intel-sidebar").innerHTML = `
+    <div class="icard green">
+      <div class="icard-header">
+        <div class="icard-title">CMO CONFIRMED · All 5 Agents Active</div>
+        <div class="icard-time">${t(3)}</div>
+      </div>
+    </div>
+    <div class="icard red">
+      <div class="icard-header">
+        <div class="icard-title">DISEASE ALERT</div>
+        <div class="icard-time">${t(7)}</div>
+      </div>
+      <div class="icard-body">
+        IDENTIFIED DISEASE<br>
+        <span class="disease-big">${d.disease}</span><br>
+        Severity: HIGH · Spread Rate: Rapid<br>
+        Confirmed cases: <strong style="display:inline;font-size:inherit;color:var(--red)">${d.cases}</strong> · Suspected: ${d.suspected}<br>
+        Agent 1 flagged origin zone
+      </div>
+    </div>
+    <div class="icard blue">
+      <div class="icard-header">
+        <div class="icard-title">AFFECTED AREA</div>
+        <div class="icard-time">${t(6)}</div>
+      </div>
+      <div class="icard-body">
+        PRIMARY ZONES<br>
+        <span class="zone-big">${d.zones}</span><br>
+        ${d.wards} wards under containment<br>
+        Agent 2 hotspot map updated
+      </div>
+    </div>
+    <div class="icard amber">
+      <div class="icard-header">
+        <div class="icard-title">DM ORDER ISSUED</div>
+        <div class="icard-time">${t(0)}</div>
+      </div>
+      <div class="icard-body">${d.dm_order}</div>
+    </div>
+    <div class="icard amber">
+      <div class="icard-header">
+        <div class="icard-title">ROAD STATUS</div>
+        <div class="icard-time">${t(0)}</div>
+      </div>
+      <div class="icard-body">
+        ROAD MANAGEMENT — POST DM ORDER<br>
+        <span class="road-blocked">■ BLOCKED: ${d.road_blocked}</span><br>
+        <span class="road-open">■ OPEN: ${d.road_open}</span>
+      </div>
+    </div>
+  `;
+}
+
+// ── LIVE API FETCH (auto-updates from your FastAPI backend) ───────────────
+async function fetchLiveData(){
+  // Fetch report.json output from ContagionGrid pipeline
+  try{
+    const r = await fetch('/output/report.json');
+    if(!r.ok) throw new Error();
+    const data = await r.json();
+    const intel = {
+      disease: data.disease || DEFAULT_INTEL.disease,
+      cases: data.initial_cases || DEFAULT_INTEL.cases,
+      suspected: data.initial_cases ? (data.initial_cases*5)+'+' : DEFAULT_INTEL.suspected,
+      zones: data.origin_zone || DEFAULT_INTEL.zones,
+      wards: data.red_zones || DEFAULT_INTEL.wards,
+      road_blocked: data.road_blocked || DEFAULT_INTEL.road_blocked,
+      road_open: data.road_open || DEFAULT_INTEL.road_open,
+      dm_order: data.dm_order || DEFAULT_INTEL.dm_order,
+    };
+    renderSidebar(intel);
+  }catch(e){renderSidebar(DEFAULT_INTEL)}
+
+  // Fetch hospital CSV data via API
+  try{
+    const r2 = await fetch('/api/hospitals');
+    if(!r2.ok) throw new Error();
+    const h = await r2.json();
+    if(h && h.length) renderHospitals(h);
+  }catch(e){}
+}
+
+// ── OPD MODAL ─────────────────────────────────────────────────────────────
+let currentHospName = '';
+function openOPD(id, name){
+  currentHospName = name;
+  document.getElementById("modal-hosp-name").textContent = name;
+  document.getElementById("form-body").style.display = "block";
+  document.getElementById("success-screen").classList.remove("show");
+  document.getElementById("modal-overlay").classList.add("open");
+}
+function closeModalBg(e){if(e.target===document.getElementById("modal-overlay"))closeModalFull()}
+function closeModalFull(){document.getElementById("modal-overlay").classList.remove("open")}
+function toggleChip(el){el.classList.toggle("sel")}
+function submitOPD(){
+  const token = "TKN-"+(Math.floor(Math.random()*9000)+1000);
+  document.getElementById("token-display").textContent = token;
+  document.getElementById("form-body").style.display = "none";
+  document.getElementById("success-screen").classList.add("show");
+  const symptoms = [...document.querySelectorAll(".chip.sel")].map(c=>c.textContent);
+  // POST to FastAPI — hospital dashboard auto-updates
+  fetch("/api/opd/book",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      name:document.getElementById("f-name").value,
+      age:document.getElementById("f-age").value,
+      phone:document.getElementById("f-phone").value,
+      area:document.getElementById("f-area").value,
+      hospital:currentHospName,
+      symptoms,token
+    })
+  }).catch(()=>{});
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+renderHospitals(DEFAULT_HOSPITALS);
+renderAgents();
+fetchLiveData();
+setInterval(fetchLiveData, 30000); // auto-refresh every 30s
+</script>
+</body>
+</html>

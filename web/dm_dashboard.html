@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DM Dashboard — ContagionGrid</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --red:#E8341A;--bg:#0A0A0A;--bg2:#111111;--bg3:#181818;--bg4:#1F1F1F;
+  --border:#2A2A2A;--border2:#333;--text:#FFFFFF;--text2:#AAAAAA;--text3:#555;
+  --green:#22C55E;--amber:#F59E0B;--blue:#3B82F6;--teal:#14B8A6;--purple:#a855f7;
+  --orange:#f97316;--sidebar:230px;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;overflow:hidden}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:linear-gradient(rgba(255,255,255,0.015) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.015) 1px,transparent 1px);
+  background-size:48px 48px}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(.85)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes agentPulse{0%,100%{box-shadow:0 0 0 0 rgba(232,52,26,0.4)}50%{box-shadow:0 0 0 8px rgba(232,52,26,0)}}
+@keyframes slideIn{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:translateX(0)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+
+/* SHELL */
+.shell{display:flex;height:100vh;position:relative;z-index:1}
+
+/* SIDEBAR */
+.sidebar{width:var(--sidebar);background:var(--bg2);border-right:0.5px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
+.sb-logo{padding:18px 20px 14px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;gap:9px;font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:1px}
+.sb-logo .dot{width:7px;height:7px;background:var(--orange);border-radius:50%;animation:pulse 2s infinite;flex-shrink:0}
+.sb-logo .red{color:var(--red)}
+.sb-role{padding:10px 20px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--orange);background:rgba(249,115,22,0.06);border-bottom:0.5px solid var(--border)}
+.sb-sec{padding:14px 12px 6px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--text3)}
+.sb-item{display:flex;align-items:center;gap:10px;padding:9px 14px;border-radius:8px;margin:2px 8px;cursor:pointer;font-size:13px;color:var(--text2);transition:all .15s;border:0.5px solid transparent}
+.sb-item:hover{background:var(--bg3);color:var(--text)}
+.sb-item.active{background:rgba(249,115,22,0.1);color:var(--orange);border-color:rgba(249,115,22,0.25)}
+.sb-item .ic{font-size:15px;width:20px;text-align:center}
+.sb-item .cnt{margin-left:auto;background:var(--red);color:#fff;font-size:10px;font-family:'JetBrains Mono',monospace;padding:1px 7px;border-radius:10px}
+.sb-bottom{margin-top:auto;padding:14px 10px;border-top:0.5px solid var(--border)}
+.sb-user{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;background:var(--bg3)}
+.sb-av{width:32px;height:32px;border-radius:8px;background:rgba(249,115,22,0.2);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.sb-ui .uname{font-size:12px;font-weight:500}
+.sb-ui .urole{font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace}
+.logout-btn{display:flex;align-items:center;gap:8px;margin-top:8px;padding:8px 10px;border-radius:8px;cursor:pointer;font-size:12px;color:var(--text3);background:none;border:none;width:100%;font-family:'DM Sans',sans-serif;transition:all .15s}
+.logout-btn:hover{background:rgba(232,52,26,0.1);color:var(--red)}
+
+/* MAIN */
+.main{flex:1;overflow-y:auto;display:flex;flex-direction:column}
+.topbar{padding:14px 28px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:rgba(10,10,10,0.92);backdrop-filter:blur(10px);position:sticky;top:0;z-index:10}
+.topbar-left .ptitle{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px}
+.topbar-left .psub{font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:2px}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.live-pill{display:flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--green);background:rgba(34,197,94,0.08);border:0.5px solid rgba(34,197,94,0.25);padding:5px 12px;border-radius:100px}
+.live-pill::before{content:'';width:5px;height:5px;background:var(--green);border-radius:50%;animation:pulse 1.5s infinite;flex-shrink:0}
+.cmo-approved-badge{display:flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--green);background:rgba(34,197,94,0.08);border:0.5px solid rgba(34,197,94,0.25);padding:5px 12px;border-radius:100px}
+
+.agents-btn{display:flex;align-items:center;gap:8px;padding:8px 18px;background:var(--orange);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;animation:agentPulse 2s infinite}
+.agents-btn:hover{background:#ea6c10;transform:translateY(-1px)}
+.agents-btn.running{background:#854F0B;animation:none}
+.agents-btn .spin{display:inline-block;width:12px;height:12px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;margin-right:6px}
+.refresh-btn{padding:7px 14px;background:var(--bg3);border:0.5px solid var(--border2);border-radius:6px;color:var(--text2);font-size:12px;cursor:pointer;font-family:'JetBrains Mono',monospace;transition:all .2s}
+.refresh-btn:hover{border-color:#555;color:var(--text)}
+
+/* CONTENT */
+.content{padding:22px 28px;flex:1}
+
+/* STAT ROW */
+.stat-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:22px}
+.scard{background:var(--bg2);border:0.5px solid var(--border);border-radius:12px;padding:16px 18px;animation:fadeIn .4s ease}
+.scard-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.scard-icon{font-size:17px}
+.scard-trend{font-size:10px;font-family:'JetBrains Mono',monospace;padding:2px 7px;border-radius:4px}
+.t-up{background:rgba(232,52,26,0.1);color:var(--red)}
+.t-ok{background:rgba(34,197,94,0.1);color:var(--green)}
+.t-warn{background:rgba(245,158,11,0.1);color:var(--amber)}
+.t-orange{background:rgba(249,115,22,0.1);color:var(--orange)}
+.scard-num{font-family:'Bebas Neue',sans-serif;font-size:38px;line-height:1;margin-bottom:3px}
+.scard-lbl{font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;letter-spacing:.5px}
+.c-red{color:var(--red)}.c-green{color:var(--green)}.c-amber{color:var(--amber)}.c-blue{color:var(--blue)}.c-teal{color:var(--teal)}.c-orange{color:var(--orange)}
+
+/* GRIDS */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.grid-21{display:grid;grid-template-columns:1fr 340px;gap:16px;margin-bottom:20px}
+.grid-12{display:grid;grid-template-columns:340px 1fr;gap:16px;margin-bottom:20px}
+
+/* PANEL */
+.panel{background:var(--bg2);border:0.5px solid var(--border);border-radius:12px;overflow:hidden;animation:fadeIn .5s ease}
+.ph{padding:14px 18px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.ph-title{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:1px}
+.ph-sub{font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace}
+.pb{padding:16px 18px}
+.nlp-badge{display:inline-flex;align-items:center;gap:5px;font-size:9px;font-family:'JetBrains Mono',monospace;color:var(--orange);background:rgba(249,115,22,0.08);border:0.5px solid rgba(249,115,22,0.2);padding:2px 8px;border-radius:3px;letter-spacing:.5px}
+
+/* AGENT PANEL */
+.agent-panel{border:0.5px solid rgba(249,115,22,0.3);border-radius:12px;background:rgba(249,115,22,0.04);overflow:hidden;margin-bottom:20px;animation:fadeIn .5s ease}
+.agent-panel-head{padding:14px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:0.5px solid rgba(249,115,22,0.15)}
+.agent-panel-title{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--orange);letter-spacing:1px}
+.agent-rows{display:grid;grid-template-columns:repeat(5,1fr);gap:0}
+.agent-col{padding:14px 16px;border-right:0.5px solid rgba(249,115,22,0.1);text-align:center}
+.agent-col:last-child{border-right:none}
+.agent-num{width:36px;height:36px;border-radius:50%;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:18px}
+.agent-name{font-size:11px;font-weight:500;color:var(--text);margin-bottom:3px}
+.agent-status{font-size:10px;font-family:'JetBrains Mono',monospace;padding:2px 8px;border-radius:3px}
+.as-idle{background:var(--bg4);color:var(--text3);border:0.5px solid var(--border)}
+.as-running{background:rgba(245,158,11,0.1);color:var(--amber);border:0.5px solid rgba(245,158,11,0.3)}
+.as-done{background:rgba(34,197,94,0.1);color:var(--green);border:0.5px solid rgba(34,197,94,0.3)}
+
+/* SECTIONS */
+#sec-overview{display:block}
+#sec-map{display:none}
+#sec-suggestions{display:none}
+#sec-orders{display:none}
+
+/* CMO PLAN CARD */
+.cmo-plan-card{background:rgba(34,197,94,0.04);border:0.5px solid rgba(34,197,94,0.25);border-radius:12px;padding:16px 18px;margin-bottom:20px;animation:fadeIn .5s ease}
+.cmo-plan-zones{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.czone{padding:6px 12px;border-radius:6px;font-size:12px;font-family:'JetBrains Mono',monospace;border:0.5px solid}
+.czone.red{background:rgba(232,52,26,0.1);color:var(--red);border-color:rgba(232,52,26,0.3)}
+.czone.orange{background:rgba(249,115,22,0.1);color:var(--orange);border-color:rgba(249,115,22,0.3)}
+.czone.yellow{background:rgba(245,158,11,0.1);color:var(--amber);border-color:rgba(245,158,11,0.3)}
+
+/* MAP */
+#road-map{height:420px;border-radius:0;background:var(--bg3)}
+.map-legend{display:flex;gap:16px;padding:10px 18px;background:var(--bg3);border-top:0.5px solid var(--border);font-size:11px;font-family:'JetBrains Mono',monospace;flex-wrap:wrap}
+.legend-item{display:flex;align-items:center;gap:6px;color:var(--text2)}
+.legend-dot{width:12px;height:4px;border-radius:2px}
+.legend-dot.red{background:#E8341A}
+.legend-dot.green{background:#22C55E}
+.legend-dot.yellow{background:#F59E0B;height:3px;border-style:dashed}
+
+/* SUGGESTION CARDS */
+.suggestion-feed{display:flex;flex-direction:column;gap:10px}
+.sug-card{border-radius:10px;padding:14px 16px;border:0.5px solid;animation:slideIn .3s ease}
+.sug-card.critical{background:rgba(232,52,26,0.06);border-color:rgba(232,52,26,0.3)}
+.sug-card.warning{background:rgba(245,158,11,0.06);border-color:rgba(245,158,11,0.3)}
+.sug-card.info{background:rgba(59,130,246,0.06);border-color:rgba(59,130,246,0.3)}
+.sug-card.success{background:rgba(34,197,94,0.06);border-color:rgba(34,197,94,0.3)}
+.sug-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px}
+.sug-title{font-size:13px;font-weight:500;line-height:1.4}
+.sug-badge{font-size:9px;font-family:'JetBrains Mono',monospace;padding:2px 7px;border-radius:3px;white-space:nowrap;flex-shrink:0}
+.sb-critical{background:var(--red);color:#fff}
+.sb-warning{background:var(--amber);color:#000}
+.sb-info{background:var(--blue);color:#fff}
+.sb-success{background:var(--green);color:#fff}
+.sug-detail{font-size:12px;color:var(--text3);line-height:1.6;margin-bottom:10px}
+.sug-actions{display:flex;gap:6px;flex-wrap:wrap}
+.sug-btn{padding:5px 12px;border-radius:5px;font-size:11px;cursor:pointer;font-family:'JetBrains Mono',monospace;border:0.5px solid;transition:all .15s}
+.sug-btn.primary{background:var(--orange);color:#fff;border-color:var(--orange)}
+.sug-btn.primary:hover{background:#ea6c10}
+.sug-btn.secondary{background:transparent;color:var(--text2);border-color:var(--border2)}
+.sug-btn.secondary:hover{border-color:#555;color:var(--text)}
+.sug-btn.danger{background:rgba(232,52,26,0.1);color:var(--red);border-color:rgba(232,52,26,0.3)}
+.sug-btn.danger:hover{background:rgba(232,52,26,0.2)}
+.sug-disease-icon{font-size:22px;margin-right:6px}
+
+/* DISEASE SELECTOR */
+.disease-selector{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.d-btn{padding:6px 14px;border-radius:6px;font-size:12px;cursor:pointer;font-family:'JetBrains Mono',monospace;border:0.5px solid var(--border2);background:transparent;color:var(--text3);transition:all .15s}
+.d-btn:hover{border-color:#555;color:var(--text)}
+.d-btn.active-dengue{background:rgba(232,52,26,0.15);color:var(--red);border-color:rgba(232,52,26,0.4)}
+.d-btn.active-covid{background:rgba(168,85,247,0.15);color:var(--purple);border-color:rgba(168,85,247,0.4)}
+.d-btn.active-cholera{background:rgba(20,184,166,0.15);color:var(--teal);border-color:rgba(20,184,166,0.4)}
+.d-btn.active-typhoid{background:rgba(245,158,11,0.15);color:var(--amber);border-color:rgba(245,158,11,0.4)}
+.d-btn.active-malaria{background:rgba(249,115,22,0.15);color:var(--orange);border-color:rgba(249,115,22,0.4)}
+.d-btn.active-flu{background:rgba(59,130,246,0.15);color:var(--blue);border-color:rgba(59,130,246,0.4)}
+
+/* ORDERS TABLE */
+.orders-table{width:100%;border-collapse:collapse}
+.orders-table th{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1.5px;color:var(--text3);padding:0 14px 8px;text-align:left;font-weight:400;text-transform:uppercase}
+.orders-table td{padding:10px 14px;font-size:12px;border-top:0.5px solid var(--border)}
+.orders-table tr:hover td{background:rgba(255,255,255,0.02)}
+.order-status{font-size:10px;font-family:'JetBrains Mono',monospace;padding:2px 8px;border-radius:3px}
+.os-issued{background:rgba(245,158,11,0.1);color:var(--amber);border:0.5px solid rgba(245,158,11,0.3)}
+.os-active{background:rgba(34,197,94,0.1);color:var(--green);border:0.5px solid rgba(34,197,94,0.3)}
+.os-pending{background:var(--bg4);color:var(--text3);border:0.5px solid var(--border)}
+
+/* EMPTY */
+.empty{text-align:center;padding:40px 20px;color:var(--text3);font-family:'JetBrains Mono',monospace;font-size:12px}
+.empty .big{font-size:28px;margin-bottom:8px}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--border2);border-top-color:var(--orange);border-radius:50%;animation:spin .7s linear infinite;margin-right:6px;vertical-align:middle}
+
+/* QUICK ACTIONS */
+.quick-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:20px}
+.qa-btn{padding:12px;border-radius:10px;background:var(--bg2);border:0.5px solid var(--border);cursor:pointer;text-align:center;transition:all .2s;font-family:'DM Sans',sans-serif}
+.qa-btn:hover{border-color:var(--orange);background:rgba(249,115,22,0.05);transform:translateY(-1px)}
+.qa-btn .qa-icon{font-size:20px;margin-bottom:5px}
+.qa-btn .qa-label{font-size:11px;color:var(--text2)}
+
+/* ALERT STRIP */
+.alert-strip{background:rgba(232,52,26,0.08);border:0.5px solid rgba(232,52,26,0.3);border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:10px;margin-bottom:16px;font-size:12px;animation:fadeIn .3s ease}
+.alert-strip .alert-dot{width:6px;height:6px;background:var(--red);border-radius:50%;animation:blink 1s infinite;flex-shrink:0}
+
+/* DIST BAR */
+.dist-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.dist-name{font-size:11px;font-family:'JetBrains Mono',monospace;width:80px;color:var(--text2);flex-shrink:0}
+.dist-bg{flex:1;height:5px;background:var(--bg4);border-radius:3px;overflow:hidden}
+.dist-fill{height:100%;border-radius:3px;transition:width .6s ease}
+.dist-cnt{font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--text3);width:24px;text-align:right;flex-shrink:0}
+
+/* NOTIFICATION */
+.notif{position:fixed;bottom:20px;right:20px;background:var(--bg2);border:0.5px solid var(--orange);border-radius:10px;padding:12px 18px;font-size:12px;max-width:280px;z-index:100;animation:fadeIn .3s ease;display:none}
+.notif.show{display:block}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sb-logo"><div class="dot"></div>Contagion<span class="red">Grid</span></div>
+  <div class="sb-role">DM OFFICE — FIELD COMMAND</div>
+
+  <div class="sb-sec">Dashboard</div>
+  <div class="sb-item active" onclick="showSec('overview',this)"><span class="ic">📊</span> Overview</div>
+  <div class="sb-item" onclick="showSec('map',this)"><span class="ic">🗺️</span> Road Map <span class="cnt" id="sb-blocks">0</span></div>
+  <div class="sb-item" onclick="showSec('suggestions',this)"><span class="ic">🤖</span> AI Suggestions <span class="cnt" id="sb-sugs">!</span></div>
+  <div class="sb-item" onclick="showSec('orders',this)"><span class="ic">📋</span> Field Orders</div>
+
+  <div class="sb-sec">Live Stats</div>
+  <div style="padding:0 12px">
+    <div style="background:var(--bg3);border:0.5px solid var(--border);border-radius:8px;padding:12px;font-size:12px">
+      <div style="color:var(--text3);font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;margin-bottom:8px">FIELD STATUS</div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="color:var(--text2)">Red Zones</span><span id="sb-redzones" style="font-family:'JetBrains Mono',monospace;color:var(--red)">—</span></div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="color:var(--text2)">Roads Blocked</span><span id="sb-roadblocks" style="font-family:'JetBrains Mono',monospace;color:var(--amber)">—</span></div>
+      <div style="display:flex;justify-content:space-between"><span style="color:var(--text2)">Orders Issued</span><span id="sb-orders" style="font-family:'JetBrains Mono',monospace;color:var(--green)">—</span></div>
+    </div>
+  </div>
+
+  <div class="sb-sec">CMO Plan</div>
+  <div style="padding:0 12px">
+    <div style="background:rgba(34,197,94,0.05);border:0.5px solid rgba(34,197,94,0.2);border-radius:8px;padding:10px 12px;font-size:11px">
+      <div id="sb-cmo-status" style="color:var(--text3);font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px">AWAITING FROM CMO</div>
+      <div id="sb-cmo-disease" style="margin-top:4px;font-size:12px;color:var(--text2)">No plan received</div>
+    </div>
+  </div>
+
+  <div class="sb-bottom">
+    <div class="sb-user">
+      <div class="sb-av">⚖️</div>
+      <div class="sb-ui"><div class="uname">DM Office</div><div class="urole">Layer 4 Access</div></div>
+    </div>
+    <button class="logout-btn" onclick="window.location.href='/login'">⬅ Logout</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="ptitle" id="page-title">DM FIELD COMMAND</div>
+      <div class="psub" id="page-sub">District Magistrate · Road control · Field operations · Emergency orders</div>
+    </div>
+    <div class="topbar-right">
+      <div class="live-pill">LIVE</div>
+      <div class="cmo-approved-badge" id="cmo-badge" style="display:none">✅ CMO PLAN APPROVED</div>
+      <button class="refresh-btn" onclick="loadAll()">↻ Refresh</button>
+      <button class="agents-btn" id="agents-btn" onclick="activateDMAgents()">
+        ⚡ Run DM Analysis
+      </button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ══ OVERVIEW ══ -->
+    <div id="sec-overview">
+
+      <!-- CMO Plan Alert -->
+      <div id="cmo-plan-card" class="cmo-plan-card" style="display:none">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--green);letter-spacing:1px">✅ CMO CONTAINMENT PLAN RECEIVED</div>
+            <div style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:2px" id="cmo-meta">Forwarded by CMO Office</div>
+          </div>
+          <button onclick="showSec('suggestions',null)" style="padding:8px 16px;background:var(--orange);color:#fff;border:none;border-radius:8px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif">View AI Suggestions →</button>
+        </div>
+        <div class="cmo-plan-zones" id="cmo-plan-zones"></div>
+      </div>
+
+      <!-- Stat Cards -->
+      <div class="stat-row">
+        <div class="scard">
+          <div class="scard-top"><span class="scard-icon">🚧</span><span class="scard-trend t-up">BLOCKED</span></div>
+          <div class="scard-num c-red" id="st-blocks">0</div>
+          <div class="scard-lbl">ROADS BLOCKED</div>
+        </div>
+        <div class="scard">
+          <div class="scard-top"><span class="scard-icon">🟢</span><span class="scard-trend t-ok">OPEN</span></div>
+          <div class="scard-num c-green" id="st-alt">0</div>
+          <div class="scard-lbl">ALT ROUTES ACTIVE</div>
+        </div>
+        <div class="scard">
+          <div class="scard-top"><span class="scard-icon">📍</span><span class="scard-trend t-up">HOTSPOT</span></div>
+          <div class="scard-num c-red" id="st-hotzone" style="font-size:22px;padding-top:6px">—</div>
+          <div class="scard-lbl">PRIMARY HOTZONE</div>
+        </div>
+        <div class="scard">
+          <div class="scard-top"><span class="scard-icon">📋</span><span class="scard-trend t-orange">ISSUED</span></div>
+          <div class="scard-num c-orange" id="st-orders">0</div>
+          <div class="scard-lbl">FIELD ORDERS</div>
+        </div>
+        <div class="scard">
+          <div class="scard-top"><span class="scard-icon">🦠</span><span class="scard-trend t-up">DETECTED</span></div>
+          <div class="scard-num c-amber" id="st-disease" style="font-size:20px;padding-top:8px">—</div>
+          <div class="scard-lbl">PRIMARY DISEASE</div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="quick-actions">
+        <div class="qa-btn" onclick="issueOrder('road-block')">
+          <div class="qa-icon">🚧</div>
+          <div class="qa-label">Issue Road Block</div>
+        </div>
+        <div class="qa-btn" onclick="issueOrder('fogging')">
+          <div class="qa-icon">💨</div>
+          <div class="qa-label">Deploy Fogging</div>
+        </div>
+        <div class="qa-btn" onclick="issueOrder('medical-camp')">
+          <div class="qa-icon">⛺</div>
+          <div class="qa-label">Setup Med Camp</div>
+        </div>
+        <div class="qa-btn" onclick="issueOrder('water-test')">
+          <div class="qa-icon">💧</div>
+          <div class="qa-label">Water Testing</div>
+        </div>
+        <div class="qa-btn" onclick="issueOrder('school-close')">
+          <div class="qa-icon">🏫</div>
+          <div class="qa-label">Close Schools</div>
+        </div>
+        <div class="qa-btn" onclick="issueOrder('curfew')">
+          <div class="qa-icon">🚨</div>
+          <div class="qa-label">Impose Curfew</div>
+        </div>
+      </div>
+
+      <!-- Area breakdown + Agent status -->
+      <div class="grid-21">
+        <div class="panel">
+          <div class="ph">
+            <div>
+              <div class="ph-title">Zone-wise Disease Load</div>
+              <div class="ph-sub">OPD cases per area · risk level</div>
+            </div>
+            <div class="nlp-badge">⚡ LIVE DATA</div>
+          </div>
+          <div style="padding:14px 18px" id="zone-breakdown">
+            <div class="empty"><span class="spinner"></span>Loading...</div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="panel">
+            <div class="ph"><div class="ph-title">Active Orders</div><div class="ph-sub">last 24h</div></div>
+            <div style="padding:14px 18px" id="mini-orders">
+              <div style="color:var(--text3);font-size:12px;font-family:'JetBrains Mono',monospace;text-align:center;padding:20px 0">No orders yet</div>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="ph"><div class="ph-title">Disease Split</div></div>
+            <div style="padding:14px 18px;height:160px"><canvas id="diseaseChart"></canvas></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /overview -->
+
+    <!-- ══ MAP SECTION ══ -->
+    <div id="sec-map">
+      <div class="panel" style="margin-bottom:16px">
+        <div class="ph">
+          <div>
+            <div class="ph-title">🗺️ Road Block & Alternative Route Map — Lucknow</div>
+            <div class="ph-sub">Red lines = blocked roads · Green lines = alternative routes · Yellow = caution zones</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <div class="nlp-badge">⚡ LIVE MAP</div>
+            <button onclick="addRandomBlock()" style="padding:5px 12px;background:rgba(232,52,26,0.1);color:var(--red);border:0.5px solid rgba(232,52,26,0.3);border-radius:5px;cursor:pointer;font-size:11px;font-family:'JetBrains Mono',monospace">+ Block Road</button>
+            <button onclick="clearBlocks()" style="padding:5px 12px;background:var(--bg3);color:var(--text3);border:0.5px solid var(--border);border-radius:5px;cursor:pointer;font-size:11px;font-family:'JetBrains Mono',monospace">Clear All</button>
+          </div>
+        </div>
+        <div id="road-map"></div>
+        <div class="map-legend">
+          <div class="legend-item"><div class="legend-dot red"></div>Blocked Road</div>
+          <div class="legend-item"><div class="legend-dot green"></div>Alternative Route</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--amber)"></div>Containment Zone</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--purple)"></div>Hospital</div>
+          <div id="block-count-legend" style="margin-left:auto;font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--text3)">0 blocks active</div>
+        </div>
+      </div>
+
+      <!-- Road block details -->
+      <div class="panel">
+        <div class="ph">
+          <div class="ph-title">Active Road Blocks</div>
+          <div class="ph-sub">Current road closures in containment zones</div>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="orders-table">
+            <thead>
+              <tr>
+                <th style="padding-left:18px">Road / Area</th>
+                <th>Reason</th>
+                <th>Issued</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="blocks-table">
+              <tr><td colspan="5" style="padding:30px;text-align:center;color:var(--text3);font-family:'JetBrains Mono',monospace;font-size:12px">No road blocks active</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div><!-- /map -->
+
+    <!-- ══ AI SUGGESTIONS ══ -->
+    <div id="sec-suggestions">
+
+      <!-- Agent pipeline -->
+      <div class="agent-panel" id="dm-agent-panel">
+        <div class="agent-panel-head">
+          <div class="agent-panel-title">⚡ DM FIELD AGENT PIPELINE</div>
+          <div id="dm-agent-status" style="font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--text3)">Click "Run DM Analysis" to activate</div>
+        </div>
+        <div class="agent-rows">
+          <div class="agent-col">
+            <div class="agent-num" style="background:rgba(232,52,26,0.2);color:#E8341A;">1</div>
+            <div class="agent-name">Zone Assessor</div>
+            <div class="agent-status as-idle" id="dmas1">IDLE</div>
+          </div>
+          <div class="agent-col">
+            <div class="agent-num" style="background:rgba(249,115,22,0.2);color:#f97316;">2</div>
+            <div class="agent-name">Road Planner</div>
+            <div class="agent-status as-idle" id="dmas2">IDLE</div>
+          </div>
+          <div class="agent-col">
+            <div class="agent-num" style="background:rgba(245,158,11,0.2);color:#F59E0B;">3</div>
+            <div class="agent-name">Disease Advisor</div>
+            <div class="agent-status as-idle" id="dmas3">IDLE</div>
+          </div>
+          <div class="agent-col">
+            <div class="agent-num" style="background:rgba(59,130,246,0.2);color:#3B82F6;">4</div>
+            <div class="agent-name">Resource Deploy</div>
+            <div class="agent-status as-idle" id="dmas4">IDLE</div>
+          </div>
+          <div class="agent-col">
+            <div class="agent-num" style="background:rgba(34,197,94,0.2);color:#22C55E;">5</div>
+            <div class="agent-name">Order Generator</div>
+            <div class="agent-status as-idle" id="dmas5">IDLE</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Disease selector -->
+      <div class="panel" style="margin-bottom:16px">
+        <div class="ph">
+          <div class="ph-title">Disease-Based AI Suggestions</div>
+          <div class="ph-sub">Select disease to see specific field recommendations</div>
+        </div>
+        <div class="pb">
+          <div style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:10px;letter-spacing:1px">SELECT PRIMARY DISEASE</div>
+          <div class="disease-selector">
+            <button class="d-btn active-dengue" onclick="selectDisease('dengue',this)">🦟 Dengue</button>
+            <button class="d-btn" onclick="selectDisease('covid',this)">😷 COVID-19</button>
+            <button class="d-btn" onclick="selectDisease('cholera',this)">💧 Cholera</button>
+            <button class="d-btn" onclick="selectDisease('typhoid',this)">🤒 Typhoid</button>
+            <button class="d-btn" onclick="selectDisease('malaria',this)">🦟 Malaria</button>
+            <button class="d-btn" onclick="selectDisease('flu',this)">🤧 Influenza</button>
+          </div>
+
+          <div class="suggestion-feed" id="suggestion-feed">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /suggestions -->
+
+    <!-- ══ FIELD ORDERS ══ -->
+    <div id="sec-orders">
+      <div class="panel">
+        <div class="ph">
+          <div>
+            <div class="ph-title">Field Orders Log</div>
+            <div class="ph-sub">All orders issued by DM Office</div>
+          </div>
+          <button onclick="showOrderModal()" style="padding:7px 14px;background:var(--orange);color:#fff;border:none;border-radius:6px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif">+ New Order</button>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="orders-table">
+            <thead>
+              <tr>
+                <th style="padding-left:18px">Order ID</th>
+                <th>Type</th>
+                <th>Area</th>
+                <th>Details</th>
+                <th>Issued At</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="orders-table-body">
+              <tr><td colspan="6" style="padding:40px;text-align:center;color:var(--text3);font-family:'JetBrains Mono',monospace;font-size:12px">No orders issued yet</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div><!-- /orders -->
+
+  </div><!-- /content -->
+</div><!-- /main -->
+</div><!-- /shell -->
+
+<!-- NOTIFICATION -->
+<div class="notif" id="notif">
+  <div style="font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--orange);margin-bottom:4px">⚡ DM OFFICE</div>
+  <div id="notif-text" style="font-size:12px;color:var(--text2)"></div>
+</div>
+
+<script>
+// ══ STATE ══
+let allPatients = [];
+let fieldOrders = [];
+let roadBlocks = [];
+let leafletMap = null;
+let mapLayers = {blocks:[], alts:[], zones:[], hospitals:[]};
+let selectedDisease = 'dengue';
+let diseaseChartInst = null;
+
+// ══ DISEASE SUGGESTIONS DATABASE ══
+const DISEASE_SUGGESTIONS = {
+  dengue: [
+    {
+      type:'critical', title:'🦟 MNC Fogging — Hazratganj, Chowk, Aminabad',
+      badge:'IMMEDIATE', detail:'Dengue mosquito breeding confirmed. Deploy fogging trucks in all red zones immediately. Focus on stagnant water sources: drains, coolers, flower pots, tyres.',
+      actions:['Deploy Fogging', 'Mark Zones', 'Dismiss']
+    },
+    {
+      type:'warning', title:'🧪 Larval Survey — All Wards',
+      badge:'HIGH PRIORITY', detail:'Block-level larval survey required. Deploy ASHA workers + vector control teams. Document all positive breeding sites.',
+      actions:['Assign Teams', 'Download Form', 'Later']
+    },
+    {
+      type:'info', title:'🏥 Platelet Reserve Alert — KGMU, Balrampur',
+      badge:'STOCK ALERT', detail:'Dengue cases may cause platelet drop. Alert blood banks to maintain platelet reserves. Coordinate with KGMU hematology.',
+      actions:['Alert Hospitals', 'View Stock']
+    },
+    {
+      type:'success', title:'📢 Public Advisory — Remove Stagnant Water',
+      badge:'PUBLIC HEALTH', detail:'Issue advisory for residents to empty coolers, containers. SMS blast to ward residents. Post on government portals.',
+      actions:['Issue Advisory', 'SMS Blast']
+    }
+  ],
+  covid: [
+    {
+      type:'critical', title:'🚧 Road Block — Containment Zone Seal',
+      badge:'IMMEDIATE', detail:'COVID cluster detected. Seal entry/exit of identified zones. Deploy police pickets at: Hazratganj chowk, Aminabad gate, Chowk crossing. Allow only emergency vehicles.',
+      actions:['Block Roads', 'Deploy Police', 'Dismiss']
+    },
+    {
+      type:'critical', title:'🔴 Section 144 — Cluster Areas',
+      badge:'LEGAL ORDER', detail:'Impose Section 144 CrPC in red zones. Prohibit public gatherings >5 persons. Markets, schools, cinema halls to remain shut.',
+      actions:['Issue Order', 'Notify Police']
+    },
+    {
+      type:'warning', title:'🏫 Close Schools — Red Zone Areas',
+      badge:'SCHOOL CLOSURE', detail:'Close all schools within 1km radius of cluster. Online classes to continue. Notify education department and parents via WhatsApp broadcast.',
+      actions:['Issue Closure', 'Notify Schools', 'Later']
+    },
+    {
+      type:'info', title:'🚗 Alternative Routes Active',
+      badge:'TRAFFIC', detail:'With road blocks in place, divert traffic via: Ring Road → Gomti Nagar bypass, Kapoorthala road as alternate for Hazratganj.',
+      actions:['View Map', 'Notify Traffic']
+    }
+  ],
+  cholera: [
+    {
+      type:'critical', title:'💧 Water Supply Shutdown — Affected Wards',
+      badge:'IMMEDIATE', detail:'Contaminated water source identified. Shut municipal water supply in affected wards. Deploy water tankers for clean water distribution immediately.',
+      actions:['Shutdown Supply', 'Deploy Tankers', 'Dismiss']
+    },
+    {
+      type:'critical', title:'🧪 Water Testing — All Sources',
+      badge:'TESTING', detail:'Collect water samples from identified areas. Fast-track to state lab. Test: Hazratganj pumping station, Chowk hand pumps, Aminabad municipal lines.',
+      actions:['Collect Samples', 'Contact Lab']
+    },
+    {
+      type:'warning', title:'🚽 Sanitation Drive — Emergency',
+      badge:'SANITATION', detail:'Deploy sanitation teams 24x7. Chlorine tablets distribution to all households. Open drains to be sealed. Nagar Nigam teams on alert.',
+      actions:['Deploy Teams', 'Order Supplies', 'Later']
+    },
+    {
+      type:'info', title:'⛺ ORS Distribution Camps',
+      badge:'RELIEF', detail:'Setup ORS distribution centers at: KGMU gate, Aminabad community center, Chowk market. Coordinate with health dept for supply.',
+      actions:['Setup Camps', 'Order ORS']
+    }
+  ],
+  typhoid: [
+    {
+      type:'critical', title:'🍽️ Food Safety Raid — Restaurants & Dhabas',
+      badge:'IMMEDIATE', detail:'Typhoid spread often via contaminated food. FSSAI inspection of all food joints in affected areas. Close violating establishments. Fine and seal.',
+      actions:['Order Raids', 'Notify FSSAI', 'Dismiss']
+    },
+    {
+      type:'warning', title:'💧 Boil Water Advisory',
+      badge:'ADVISORY', detail:'Issue boil water advisory for all residents in affected wards. Distribute purification tablets. Post advisories in public places, masjids, temples.',
+      actions:['Issue Advisory', 'Print Posters', 'Later']
+    },
+    {
+      type:'warning', title:'🏫 Mid-Day Meal Check — Schools',
+      badge:'SCHOOL SAFETY', detail:'Typhoid can spread via mid-day meals. Inspect kitchen hygiene in all schools. Test water used for cooking. Suspend meals if unsafe.',
+      actions:['Inspect Schools', 'Suspend Meals']
+    },
+    {
+      type:'info', title:'💉 Typhoid Vaccination Camp',
+      badge:'PREVENTION', detail:'Organize mass vaccination camps in affected wards. Coordinate with health dept. Target school children, market vendors, domestic workers.',
+      actions:['Setup Camp', 'Notify Health Dept']
+    }
+  ],
+  malaria: [
+    {
+      type:'critical', title:'🦟 Anti-Larval Operations — All Water Bodies',
+      badge:'IMMEDIATE', detail:'Deploy teams to drain/spray all stagnant water bodies. Priority: parks, construction sites, open drains. Use Temephos larvicide. Cover within 48 hours.',
+      actions:['Deploy Teams', 'Order Larvicide', 'Dismiss']
+    },
+    {
+      type:'warning', title:'🏠 Indoor Residual Spraying',
+      badge:'IRS CAMPAIGN', detail:'Door-to-door IRS campaign in red zones. Use DDT/Malathion. Cover all rooms, walls, ceilings. Target households near breeding sites.',
+      actions:['Launch IRS', 'Assign Teams', 'Later']
+    },
+    {
+      type:'info', title:'🛏️ Free Mosquito Net Distribution',
+      badge:'PREVENTION', detail:'Distribute LLIN (Long-lasting insecticidal nets) to households in high-risk areas. Priority: below poverty line families, pregnant women, children.',
+      actions:['Order Nets', 'Plan Distribution']
+    },
+    {
+      type:'success', title:'🔬 RDT Testing Camps',
+      badge:'RAPID TEST', detail:'Setup Rapid Diagnostic Test camps near affected areas. Early detection prevents spread. Coordinate with Primary Health Centers.',
+      actions:['Setup Camps', 'Order RDT Kits']
+    }
+  ],
+  flu: [
+    {
+      type:'warning', title:'😷 Mask Distribution — Public Places',
+      badge:'PREVENTION', detail:'Distribute N95/surgical masks at bus stands, railway stations, markets. Schools and govt offices to enforce masking. Fine non-compliance.',
+      actions:['Order Masks', 'Issue Order', 'Later']
+    },
+    {
+      type:'info', title:'🏥 Flu OPD — All Government Hospitals',
+      badge:'MEDICAL', detail:'Open dedicated flu OPDs in all govt hospitals. Separate waiting areas for flu patients. Stock Oseltamivir (Tamiflu) at all hospitals.',
+      actions:['Alert Hospitals', 'Check Stock']
+    },
+    {
+      type:'info', title:'🏫 School Hygiene Protocol',
+      badge:'SCHOOLS', detail:'Mandate handwashing stations in all schools. Sanitize classrooms daily. Home isolation for students with symptoms. No attendance pressure.',
+      actions:['Issue Protocol', 'Notify Schools']
+    },
+    {
+      type:'success', title:'💉 Influenza Vaccination — High Risk Groups',
+      badge:'VACCINATION', detail:'Prioritize: elderly 60+, healthcare workers, pregnant women, children under 5. Coordinate with health dept for vaccination drives at community centers.',
+      actions:['Plan Drive', 'Coordinate Health']
+    }
+  ]
+};
+
+// ══ LUCKNOW MAP DATA ══
+const LUCKNOW_CENTER = [26.8467, 80.9462];
+const LUCKNOW_AREAS = {
+  'Hazratganj': [26.8555, 80.9448],
+  'Chowk':      [26.8621, 80.9127],
+  'Aminabad':   [26.8484, 80.9313],
+  'Gomti Nagar':[26.8470, 80.9987],
+  'Alambagh':   [26.8113, 80.9239],
+  'Lucknow Cantt': [26.8312, 80.9148],
+};
+
+const HOSPITALS_COORDS = [
+  {name:'King George Medical University', lat:26.8622, lng:80.9192, color:'#E8341A'},
+  {name:'Balrampur Hospital',             lat:26.8558, lng:80.9180, color:'#F59E0B'},
+  {name:'Ram Manohar Lohia Institute',    lat:26.8550, lng:80.9550, color:'#3B82F6'},
+  {name:'Civil Hospital Lucknow',         lat:26.8600, lng:80.9280, color:'#14B8A6'},
+  {name:'Medanta Lucknow',                lat:26.8320, lng:81.0020, color:'#a855f7'},
+  {name:'District Women Hospital',        lat:26.8540, lng:80.9440, color:'#22C55E'},
+];
+
+const ROAD_BLOCKS_DEFAULT = [
+  {id:'RB-001', road:'Hazratganj Main Road', area:'Hazratganj', reason:'Dengue Red Zone', lat1:26.8565, lng1:80.9430, lat2:26.8545, lng2:80.9465, alt:[[26.8580,80.9400],[26.8560,80.9480]], issued:'2 hrs ago', status:'active'},
+  {id:'RB-002', road:'Chowk Crossing', area:'Chowk', reason:'Cholera Containment', lat1:26.8630, lng1:80.9110, lat2:26.8610, lng2:80.9145, alt:[[26.8650,80.9090],[26.8620,80.9160]], issued:'4 hrs ago', status:'active'},
+];
+
+const ZONE_POLYGONS = [
+  {name:'Hazratganj', level:'red',    coords:[[26.862,80.940],[26.862,80.950],[26.850,80.950],[26.850,80.940]]},
+  {name:'Chowk',      level:'orange', coords:[[26.868,80.907],[26.868,80.918],[26.855,80.918],[26.855,80.907]]},
+  {name:'Aminabad',   level:'yellow', coords:[[26.854,80.925],[26.854,80.937],[26.843,80.937],[26.843,80.925]]},
+];
+
+// ══ DISEASE DETECTION ══
+const DISEASE_RULES = [
+  {disease:"Dengue",   keywords:["bukhar","fever","body pain","sardard","headache","thakaan","rash","joint pain"],    weight:{"rash":3,"joint pain":2,"bukhar":2}},
+  {disease:"Malaria",  keywords:["bukhar","fever","thakaan","thand","shivering","sweating","pasina"],                weight:{"thand":3,"shivering":3}},
+  {disease:"Typhoid",  keywords:["bukhar","fever","ped dard","stomach","dast","diarrhea","ulti","kamzori"],          weight:{"ped dard":3,"stomach":2}},
+  {disease:"Cholera",  keywords:["dast","diarrhea","ulti","vomiting","ped dard","dehydration","pani wala"],          weight:{"dast":3,"dehydration":3}},
+  {disease:"Influenza",keywords:["khasi","cough","bukhar","fever","sardard","saans","naak","gala"],                  weight:{"khasi":3,"cough":3}},
+  {disease:"COVID-19", keywords:["khasi","cough","saans ki takleef","bukhar","taste loss","smell loss"],             weight:{"saans ki takleef":4,"taste loss":4}},
+];
+function detectDisease(symptoms){
+  if(!symptoms||!symptoms.length)return"Unknown";
+  const txt=symptoms.join(" ").toLowerCase();
+  let scores={};
+  for(const r of DISEASE_RULES){let s=0;for(const k of r.keywords){if(txt.includes(k))s+=(r.weight[k]||1);}if(s>0)scores[r.disease]=s;}
+  if(!Object.keys(scores).length)return"Unknown";
+  return Object.entries(scores).sort((a,b)=>b[1]-a[1])[0][0];
+}
+
+// ══ LOAD DATA ══
+async function loadAll(){
+  try{
+    const res = await fetch('/api/opd/list');
+    const data = await res.json();
+    allPatients = (data.bookings||[]).map(b=>({...b, ai_disease:detectDisease(b.symptoms)}));
+  }catch(e){
+    allPatients = getDemoPatients();
+  }
+  checkCMOPlan();
+  renderOverview();
+}
+
+function getDemoPatients(){
+  return[
+    {token:"TKN-1042",area:"Hazratganj",hospital:"King George Medical University",symptoms:["Bukhar (Fever)","Body pain","Rash","Joint pain"],status:"pending"},
+    {token:"TKN-2381",area:"Chowk",hospital:"Balrampur Hospital",symptoms:["Khasi (Cough)","Saans ki takleef","Bukhar (Fever)"],status:"seen"},
+    {token:"TKN-3047",area:"Aminabad",hospital:"King George Medical University",symptoms:["Dast (Diarrhea)","Ulti (Vomiting)","Ped dard","Dehydration"],status:"critical"},
+    {token:"TKN-4892",area:"Hazratganj",hospital:"Civil Hospital Lucknow",symptoms:["Bukhar (Fever)","Body pain","Joint pain","Rash","Thakaan"],status:"pending"},
+    {token:"TKN-5123",area:"Gomti Nagar",hospital:"Ram Manohar Lohia Institute",symptoms:["Bukhar (Fever)","Thand","Shivering"],status:"pending"},
+    {token:"TKN-6234",area:"Chowk",hospital:"Balrampur Hospital",symptoms:["Khasi (Cough)","Bukhar (Fever)","Naak"],status:"seen"},
+    {token:"TKN-7891",area:"Lucknow Cantt",hospital:"Medanta Lucknow",symptoms:["Dast (Diarrhea)","Ulti (Vomiting)","Dehydration"],status:"pending"},
+    {token:"TKN-8012",area:"Aminabad",hospital:"King George Medical University",symptoms:["Bukhar (Fever)","Body pain","Rash"],status:"pending"},
+  ].map(b=>({...b,ai_disease:detectDisease(b.symptoms)}));
+}
+
+function checkCMOPlan(){
+  const approved = localStorage.getItem('cg_plan_approved');
+  const sent = localStorage.getItem('cg_sent_to_dm');
+  if(approved || sent){
+    document.getElementById('cmo-plan-card').style.display='block';
+    document.getElementById('cmo-badge').style.display='flex';
+    document.getElementById('sb-cmo-status').textContent='✅ PLAN RECEIVED';
+    document.getElementById('sb-cmo-disease').textContent='Containment plan approved';
+    const zones = ['🔴 Hazratganj (RED)','🟠 Chowk (ORANGE)','🟡 Aminabad (YELLOW)'];
+    document.getElementById('cmo-plan-zones').innerHTML = zones.map(z=>{
+      const level = z.includes('RED')?'red':z.includes('ORANGE')?'orange':'yellow';
+      return`<div class="czone ${level}">${z}</div>`;
+    }).join('');
+  }
+}
+
+// ══ RENDER OVERVIEW ══
+function renderOverview(){
+  const ac={}, dc={};
+  allPatients.forEach(p=>{
+    ac[p.area||'Unknown']=(ac[p.area||'Unknown']||0)+1;
+    dc[p.ai_disease]=(dc[p.ai_disease]||0)+1;
+  });
+  const topA = Object.entries(ac).sort((a,b)=>b[1]-a[1])[0]?.[0]||'—';
+  const topD = Object.entries(dc).sort((a,b)=>b[1]-a[1])[0]?.[0]||'—';
+
+  document.getElementById('st-blocks').textContent = roadBlocks.length;
+  document.getElementById('st-alt').textContent = roadBlocks.length;
+  document.getElementById('st-hotzone').textContent = topA;
+  document.getElementById('st-orders').textContent = fieldOrders.length;
+  document.getElementById('st-disease').textContent = topD;
+  document.getElementById('sb-blocks').textContent = roadBlocks.length;
+  document.getElementById('sb-redzones').textContent = '3';
+  document.getElementById('sb-roadblocks').textContent = roadBlocks.length;
+  document.getElementById('sb-orders').textContent = fieldOrders.length;
+
+  renderZoneBreakdown(ac);
+  renderDiseaseChart(dc);
+  renderMiniOrders();
+
+  // Auto-select disease from data
+  if(topD && topD!=='Unknown' && topD!=='—'){
+    const dm = {'Dengue':'dengue','COVID-19':'covid','Cholera':'cholera','Typhoid':'typhoid','Malaria':'malaria','Influenza':'flu'};
+    if(dm[topD]) selectedDisease = dm[topD];
+  }
+  renderSuggestions(selectedDisease);
+}
+
+function renderZoneBreakdown(ac){
+  const sorted = Object.entries(ac).sort((a,b)=>b[1]-a[1]);
+  const max = sorted[0]?.[1]||1;
+  const colors = {'Hazratganj':'#E8341A','Chowk':'#F59E0B','Aminabad':'#3B82F6','Gomti Nagar':'#14B8A6','Alambagh':'#a855f7','Lucknow Cantt':'#22C55E','Unknown':'#555'};
+  const el = document.getElementById('zone-breakdown');
+  if(!sorted.length){el.innerHTML='<div class="empty">No data</div>';return;}
+  el.innerHTML = sorted.map(([a,c])=>{
+    const pct = Math.round(c/max*100);
+    const risk = pct>70?'HIGH':pct>40?'MEDIUM':'LOW';
+    const rc = pct>70?'var(--red)':pct>40?'var(--amber)':'var(--green)';
+    return`<div class="dist-row" style="margin-bottom:10px">
+      <div class="dist-name">${a}</div>
+      <div class="dist-bg"><div class="dist-fill" style="width:${pct}%;background:${colors[a]||'#E8341A'}"></div></div>
+      <div class="dist-cnt">${c}</div>
+      <div style="font-size:10px;font-family:'JetBrains Mono',monospace;color:${rc};width:50px;text-align:right">${risk}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderDiseaseChart(dc){
+  if(diseaseChartInst)diseaseChartInst.destroy();
+  const labels=Object.keys(dc), vals=Object.values(dc);
+  const ctx=document.getElementById('diseaseChart').getContext('2d');
+  diseaseChartInst=new Chart(ctx,{
+    type:'doughnut',
+    data:{labels,datasets:[{data:vals,backgroundColor:['#E8341A','#a855f7','#14B8A6','#F59E0B','#f97316','#3B82F6'],borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:'#888',font:{size:9,family:'JetBrains Mono'},boxWidth:8,padding:6}}}}
+  });
+}
+
+function renderMiniOrders(){
+  const el = document.getElementById('mini-orders');
+  if(!fieldOrders.length){
+    el.innerHTML='<div style="color:var(--text3);font-size:12px;font-family:\'JetBrains Mono\',monospace;text-align:center;padding:16px 0">No orders issued</div>';
+    return;
+  }
+  el.innerHTML = fieldOrders.slice(-3).reverse().map(o=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:0.5px solid var(--border);font-size:12px">
+      <span style="color:var(--text2)">${o.emoji} ${o.type}</span>
+      <span class="order-status os-active">ACTIVE</span>
+    </div>`).join('');
+}
+
+// ══ MAP ══
+function initMap(){
+  if(leafletMap) return;
+  leafletMap = L.map('road-map', {
+    center: LUCKNOW_CENTER, zoom: 14,
+    zoomControl: true,
+    attributionControl: false
+  });
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    maxZoom:19, subdomains:'abcd'
+  }).addTo(leafletMap);
+
+  // Zone polygons
+  ZONE_POLYGONS.forEach(z=>{
+    const color = z.level==='red'?'#E8341A':z.level==='orange'?'#f97316':'#F59E0B';
+    L.polygon(z.coords, {color, fillColor:color, fillOpacity:0.12, weight:1.5, dashArray:'6 4'})
+      .bindPopup(`<b style="color:${color}">${z.name}</b><br><small>${z.level.toUpperCase()} ZONE</small>`)
+      .addTo(leafletMap);
+    mapLayers.zones.push(z.name);
+  });
+
+  // Hospitals
+  HOSPITALS_COORDS.forEach(h=>{
+    const icon = L.divIcon({
+      html:`<div style="background:${h.color};width:10px;height:10px;border-radius:50%;border:2px solid white;"></div>`,
+      iconSize:[10,10], className:''
+    });
+    L.marker([h.lat,h.lng], {icon}).bindPopup(`<b>🏥 ${h.name}</b>`).addTo(leafletMap);
+  });
+
+  // Default road blocks
+  renderMapBlocks();
+}
+
+function renderMapBlocks(){
+  if(!leafletMap) return;
+  // Clear old
+  mapLayers.blocks.forEach(l=>leafletMap.removeLayer(l));
+  mapLayers.alts.forEach(l=>leafletMap.removeLayer(l));
+  mapLayers.blocks=[];mapLayers.alts=[];
+
+  const allBlocks = [...ROAD_BLOCKS_DEFAULT, ...roadBlocks];
+
+  allBlocks.forEach(b=>{
+    // Block line (red)
+    const bl = L.polyline([[b.lat1,b.lng1],[b.lat2,b.lng2]], {
+      color:'#E8341A', weight:5, opacity:0.9
+    }).bindPopup(`<b style="color:#E8341A">🚧 ${b.road}</b><br><small>${b.reason}</small>`).addTo(leafletMap);
+    mapLayers.blocks.push(bl);
+
+    // Alternative route (green)
+    if(b.alt && b.alt.length){
+      const al = L.polyline(b.alt, {
+        color:'#22C55E', weight:3, opacity:0.8, dashArray:'8 4'
+      }).bindPopup(`<b style="color:#22C55E">🟢 Alternative Route</b>`).addTo(leafletMap);
+      mapLayers.alts.push(al);
+    }
+  });
+
+  document.getElementById('block-count-legend').textContent = `${allBlocks.length} block${allBlocks.length!==1?'s':''} active`;
+  document.getElementById('sb-blocks').textContent = allBlocks.length;
+  renderBlocksTable(allBlocks);
+}
+
+function renderBlocksTable(blocks){
+  const tbody = document.getElementById('blocks-table');
+  if(!blocks.length){
+    tbody.innerHTML='<tr><td colspan="5" style="padding:30px;text-align:center;color:var(--text3);font-family:\'JetBrains Mono\',monospace;font-size:12px">No road blocks active</td></tr>';
+    return;
+  }
+  tbody.innerHTML = blocks.map(b=>`
+    <tr>
+      <td style="padding-left:18px"><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text2)">${b.road||b.id}</span><br><span style="font-size:10px;color:var(--text3)">${b.area}</span></td>
+      <td><span style="font-size:12px;color:var(--red)">${b.reason}</span></td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text3)">${b.issued||'just now'}</td>
+      <td><span class="order-status os-active">ACTIVE</span></td>
+      <td><button onclick="removeBlock('${b.id}')" style="padding:3px 10px;background:rgba(232,52,26,0.1);color:var(--red);border:0.5px solid rgba(232,52,26,0.3);border-radius:4px;cursor:pointer;font-size:11px">Remove</button></td>
+    </tr>`).join('');
+}
+
+function addRandomBlock(){
+  const roads = [
+    {road:'Vidhan Sabha Marg', area:'Hazratganj', reason:'COVID Containment', lat1:26.858,lng1:80.946,lat2:26.853,lng2:80.948, alt:[[26.860,80.943],[26.855,80.950]], issued:'just now'},
+    {road:'Naka Hindola Road', area:'Aminabad', reason:'Dengue Red Zone', lat1:26.847,lng1:80.929,lat2:26.844,lng2:80.934, alt:[[26.849,80.927],[26.846,80.936]], issued:'just now'},
+    {road:'Kaiserbagh Road', area:'Chowk', reason:'Cholera Zone', lat1:26.862,lng1:80.926,lat2:26.858,lng2:80.930, alt:[[26.864,80.924],[26.860,80.932]], issued:'just now'},
+  ];
+  const b = roads[Math.floor(Math.random()*roads.length)];
+  b.id = 'RB-' + String(Date.now()).slice(-3);
+  roadBlocks.push(b);
+  renderMapBlocks();
+  showNotif(`🚧 Road block added: ${b.road}`);
+  updateStats();
+}
+
+function clearBlocks(){
+  roadBlocks = [];
+  renderMapBlocks();
+  showNotif('All custom road blocks cleared');
+  updateStats();
+}
+
+function removeBlock(id){
+  roadBlocks = roadBlocks.filter(b=>b.id!==id);
+  renderMapBlocks();
+  updateStats();
+}
+
+function updateStats(){
+  const allBlocks = [...ROAD_BLOCKS_DEFAULT, ...roadBlocks];
+  document.getElementById('st-blocks').textContent = allBlocks.length;
+  document.getElementById('st-alt').textContent = allBlocks.length;
+  document.getElementById('sb-blocks').textContent = allBlocks.length;
+  document.getElementById('sb-roadblocks').textContent = allBlocks.length;
+}
+
+// ══ DISEASE SUGGESTIONS ══
+function selectDisease(d, el){
+  selectedDisease = d;
+  document.querySelectorAll('.d-btn').forEach(b=>{
+    b.className='d-btn';
+  });
+  if(el) el.className = `d-btn active-${d}`;
+  renderSuggestions(d);
+}
+
+function renderSuggestions(d){
+  const sugs = DISEASE_SUGGESTIONS[d] || [];
+  const feed = document.getElementById('suggestion-feed');
+  feed.innerHTML = sugs.map((s,i)=>{
+    const delay = i*0.1;
+    const actionBtns = s.actions.map((a,ai)=>{
+      const cls = ai===0?'primary':ai===s.actions.length-1&&(a==='Dismiss'||a==='Later')?'secondary':'secondary';
+      const dc = a==='Dismiss'||a==='Later'?'secondary':'secondary';
+      const isFirst = ai===0;
+      return`<button class="sug-btn ${isFirst?'primary':'secondary'}" onclick="handleSugAction('${a}','${s.title}')">${a}</button>`;
+    }).join('');
+    return`<div class="sug-card ${s.type}" style="animation-delay:${delay}s">
+      <div class="sug-top">
+        <div class="sug-title">${s.title}</div>
+        <span class="sug-badge sb-${s.type==='critical'?'critical':s.type==='warning'?'warning':s.type==='info'?'info':'success'}">${s.badge}</span>
+      </div>
+      <div class="sug-detail">${s.detail}</div>
+      <div class="sug-actions">${actionBtns}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('sb-sugs').textContent = sugs.filter(s=>s.type==='critical').length||'!';
+}
+
+function handleSugAction(action, title){
+  if(action==='Dismiss'||action==='Later'){
+    showNotif(`📝 Deferred: ${title.substring(0,40)}...`);
+    return;
+  }
+  // Map action → order type
+  const emoji = action.includes('Deploy')?'💨':action.includes('Block')?'🚧':action.includes('Close')?'🏫':action.includes('Camp')?'⛺':action.includes('Advisory')?'📢':'📋';
+  issueOrderDirect(action, selectedDisease, emoji);
+}
+
+// ══ ORDERS ══
+function issueOrder(type){
+  const map = {
+    'road-block':{emoji:'🚧',label:'Road Block'},
+    'fogging':{emoji:'💨',label:'Fogging Operation'},
+    'medical-camp':{emoji:'⛺',label:'Medical Camp'},
+    'water-test':{emoji:'💧',label:'Water Testing'},
+    'school-close':{emoji:'🏫',label:'School Closure'},
+    'curfew':{emoji:'🚨',label:'Curfew Order'},
+  };
+  const t = map[type]||{emoji:'📋',label:type};
+  issueOrderDirect(t.label, selectedDisease, t.emoji);
+}
+
+function issueOrderDirect(type, disease, emoji){
+  const areas = Object.keys(LUCKNOW_AREAS);
+  const area = areas[Math.floor(Math.random()*areas.length)];
+  const order = {
+    id:'ORD-' + String(Date.now()).slice(-4),
+    type, disease, area, emoji,
+    issued: new Date().toLocaleTimeString(),
+    status:'active'
+  };
+  fieldOrders.push(order);
+  renderOrdersTable();
+  renderMiniOrders();
+  document.getElementById('st-orders').textContent = fieldOrders.length;
+  document.getElementById('sb-orders').textContent = fieldOrders.length;
+  showNotif(`${emoji} Order issued: ${type} — ${area}`);
+}
+
+function renderOrdersTable(){
+  const tbody = document.getElementById('orders-table-body');
+  if(!fieldOrders.length){
+    tbody.innerHTML='<tr><td colspan="6" style="padding:40px;text-align:center;color:var(--text3);font-family:\'JetBrains Mono\',monospace;font-size:12px">No orders issued yet</td></tr>';
+    return;
+  }
+  tbody.innerHTML = [...fieldOrders].reverse().map(o=>`
+    <tr>
+      <td style="padding-left:18px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--orange)">${o.id}</td>
+      <td><span style="font-size:13px">${o.emoji}</span> <span style="font-size:12px">${o.type}</span></td>
+      <td><span style="font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--blue)">${o.area}</span></td>
+      <td><span style="font-size:11px;color:var(--text3)">Disease: ${o.disease}</span></td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text3)">${o.issued}</td>
+      <td><span class="order-status os-active">ACTIVE</span></td>
+    </tr>`).join('');
+}
+
+// ══ DM AGENTS ══
+async function activateDMAgents(){
+  const btn = document.getElementById('agents-btn');
+  btn.classList.add('running');
+  btn.innerHTML = '<span class="spin"></span> Running Analysis...';
+  showSec('suggestions', null);
+  const delays=[0,4000,8000,12000,16000];
+  const dones=[3500,7500,11500,15500,19500];
+  delays.forEach((d,i)=>{
+    setTimeout(()=>{
+      const el=document.getElementById(`dmas${i+1}`);
+      el.className='agent-status as-running';el.textContent='RUNNING';
+      document.getElementById('dm-agent-status').textContent=`Agent ${i+1} analyzing...`;
+    },d);
+  });
+  dones.forEach((d,i)=>{
+    setTimeout(()=>{
+      const el=document.getElementById(`dmas${i+1}`);
+      el.className='agent-status as-done';el.textContent='DONE ✓';
+    },d);
+  });
+  setTimeout(()=>{
+    btn.classList.remove('running');
+    btn.innerHTML='✅ Analysis Complete';
+    document.getElementById('dm-agent-status').textContent='All 5 field agents completed. Suggestions updated.';
+    renderSuggestions(selectedDisease);
+    showNotif('⚡ DM Analysis complete. Field suggestions updated.');
+  }, 21000);
+}
+
+// ══ NAV ══
+const secs={overview:'sec-overview',map:'sec-map',suggestions:'sec-suggestions',orders:'sec-orders'};
+function showSec(name, el){
+  Object.values(secs).forEach(id=>{const s=document.getElementById(id);if(s)s.style.display='none';});
+  const s=document.getElementById(secs[name]);
+  if(s)s.style.display='block';
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
+  if(el)el.classList.add('active');
+  const titles={
+    overview:['DM FIELD COMMAND','District Magistrate · Road control · Field operations · Emergency orders'],
+    map:['ROAD BLOCK MAP','Blocked roads (red) · Alternative routes (green) · Containment zones'],
+    suggestions:['AI FIELD SUGGESTIONS','Disease-specific recommendations · Agentic analysis'],
+    orders:['FIELD ORDERS LOG','All orders issued · Track status · Manage operations']
+  };
+  const t=titles[name];
+  document.getElementById('page-title').textContent=t[0];
+  document.getElementById('page-sub').textContent=t[1];
+
+  // Init map when switching to map section
+  if(name==='map'){
+    setTimeout(()=>{
+      initMap();
+      if(leafletMap)leafletMap.invalidateSize();
+    },100);
+  }
+}
+
+// ══ NOTIFICATION ══
+function showNotif(msg){
+  const n=document.getElementById('notif');
+  document.getElementById('notif-text').textContent=msg;
+  n.classList.add('show');
+  setTimeout(()=>n.classList.remove('show'),3000);
+}
+
+// ══ INIT ══
+loadAll();
+renderSuggestions('dengue');
+setInterval(loadAll, 25000);
+</script>
+</body>
+</html>

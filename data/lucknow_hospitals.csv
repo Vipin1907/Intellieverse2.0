@@ -1,0 +1,10 @@
+name,zone,lat,lon,type,beds,icu_beds,source
+King George Medical University,Chowk,26.8629,80.9162,Government,3500,120,NHP India
+Ram Manohar Lohia Hospital,Hazratganj,26.8501,80.9391,Government,650,40,NHP India
+Balrampur Hospital,Chowk,26.8578,80.9134,Government,700,35,NHP India
+Civil Hospital Aliganj,Aliganj,26.8891,80.9612,Government,200,15,NHP India
+Sahara Hospital,Gomti Nagar,26.8467,80.9956,Private,350,45,Google Maps
+Medanta Hospital,Gomti Nagar,26.8523,80.9934,Private,450,60,Google Maps
+Apollo Clinic,Indira Nagar,26.8734,80.9978,Private,80,10,Google Maps
+Vivekananda Hospital,Alambagh,26.8198,80.9187,Government,180,12,NHP India
+District Hospital Rajajipuram,Rajajipuram,26.8312,80.8989,Government,250,18,NHP India
