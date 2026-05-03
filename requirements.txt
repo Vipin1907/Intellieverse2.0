@@ -6,3 +6,6 @@ osmnx
 folium
 networkx
 numpy
+python-dotenv
+google-genai
+reportlab
