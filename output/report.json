@@ -2,106 +2,127 @@
   "city": "Lucknow",
   "disease": "flu",
   "outbreak_location": "jankipuram",
-  "initial_cases": 14,
+  "initial_cases": 15,
   "peak_zone": "Hazratganj",
   "immediate_actions": [
-    "Deploy rapid response teams to Jankipuram for case investigation and contact tracing.",
-    "Alert all healthcare facilities in Lucknow to prepare for potential influx of flu cases and activate emergency protocols.",
-    "Initiate city-wide public awareness campaign on flu symptoms, prevention (hand hygiene, respiratory etiquette), and reporting procedures.",
-    "Establish a central command center for real-time data monitoring, resource coordination, and public communication.",
-    "Ensure adequate supply of antiviral medications, PPE, and testing kits in designated health facilities across Lucknow."
+    "Deploy rapid response teams to Jankipuram for comprehensive case investigation and contact tracing",
+    "Alert all healthcare facilities across Lucknow to activate flu surveillance protocols and ensure prompt reporting",
+    "Activate the District Emergency Operations Center (DEOC) for inter-departmental coordination and resource management",
+    "Launch a city-wide public awareness campaign on flu symptoms, prevention measures, and reporting mechanisms through multiple media channels",
+    "Ensure adequate availability of testing kits, personal protective equipment (PPE), antivirals, and isolation facilities across Lucknow"
   ],
   "containment_zones": [
     {
       "name": "Jankipuram",
       "level": "red",
       "restrictions": [
-        "Strict contact tracing and isolation protocols",
-        "Temporary closure of non-essential public gatherings",
-        "Mandatory thermal screening at key entry points"
+        "Localized containment and cordon sanitaire around identified clusters",
+        "Mandatory symptom screening at key entry/exit points within Jankipuram",
+        "Closure of non-essential public gatherings, markets, and community centers",
+        "Intensive contact tracing for all 15 confirmed cases and their close contacts",
+        "Mandatory isolation for confirmed cases and high-risk contacts",
+        "Mandatory mask-wearing in public spaces within the zone",
+        "Enhanced sanitation and disinfection drives in public and common areas",
+        "Public awareness campaigns on flu symptoms, prevention, and reporting mechanisms"
       ],
-      "testing_centers": 3,
-      "reason": "Origin of flu outbreak, 14 confirmed cases, active community transmission detected."
+      "testing_centers": 4,
+      "reason": "Origin of the outbreak with 15 confirmed flu cases, active transmission and highest immediate risk."
     },
     {
       "name": "Hazratganj",
       "level": "yellow",
       "restrictions": [
-        "Enhanced public health advisories on flu symptoms and prevention",
-        "Promotion of hand hygiene and respiratory etiquette"
+        "Enhanced surveillance for flu-like symptoms in all healthcare facilities",
+        "Public health advisory on flu symptoms, personal hygiene, and respiratory etiquette",
+        "Preparation of rapid response teams for immediate deployment if cases emerge",
+        "Promotion of voluntary mask-wearing in crowded public spaces and public transport"
       ],
       "testing_centers": 1,
-      "reason": "No projected cases within 72 hours, maintaining high alert and proactive surveillance."
+      "reason": "Zero projected cases, classified for proactive monitoring and preparedness."
     },
     {
       "name": "Aminabad",
       "level": "yellow",
       "restrictions": [
-        "Enhanced public health advisories on flu symptoms and prevention",
-        "Promotion of hand hygiene and respiratory etiquette"
+        "Enhanced surveillance for flu-like symptoms in all healthcare facilities",
+        "Public health advisory on flu symptoms, personal hygiene, and respiratory etiquette",
+        "Preparation of rapid response teams for immediate deployment if cases emerge",
+        "Promotion of voluntary mask-wearing in crowded public spaces and public transport"
       ],
       "testing_centers": 1,
-      "reason": "No projected cases within 72 hours, maintaining high alert and proactive surveillance."
+      "reason": "Zero projected cases, classified for proactive monitoring and preparedness."
     },
     {
       "name": "Gomti Nagar",
       "level": "yellow",
       "restrictions": [
-        "Enhanced public health advisories on flu symptoms and prevention",
-        "Promotion of hand hygiene and respiratory etiquette"
+        "Enhanced surveillance for flu-like symptoms in all healthcare facilities",
+        "Public health advisory on flu symptoms, personal hygiene, and respiratory etiquette",
+        "Preparation of rapid response teams for immediate deployment if cases emerge",
+        "Promotion of voluntary mask-wearing in crowded public spaces and public transport"
       ],
       "testing_centers": 1,
-      "reason": "No projected cases within 72 hours, maintaining high alert and proactive surveillance."
+      "reason": "Zero projected cases, classified for proactive monitoring and preparedness."
     },
     {
       "name": "Alambagh",
       "level": "yellow",
       "restrictions": [
-        "Enhanced public health advisories on flu symptoms and prevention",
-        "Promotion of hand hygiene and respiratory etiquette"
+        "Enhanced surveillance for flu-like symptoms in all healthcare facilities",
+        "Public health advisory on flu symptoms, personal hygiene, and respiratory etiquette",
+        "Preparation of rapid response teams for immediate deployment if cases emerge",
+        "Promotion of voluntary mask-wearing in crowded public spaces and public transport"
       ],
       "testing_centers": 1,
-      "reason": "No projected cases within 72 hours, maintaining high alert and proactive surveillance."
+      "reason": "Zero projected cases, classified for proactive monitoring and preparedness."
     },
     {
       "name": "Chowk",
       "level": "yellow",
       "restrictions": [
-        "Enhanced public health advisories on flu symptoms and prevention",
-        "Promotion of hand hygiene and respiratory etiquette"
+        "Enhanced surveillance for flu-like symptoms in all healthcare facilities",
+        "Public health advisory on flu symptoms, personal hygiene, and respiratory etiquette",
+        "Preparation of rapid response teams for immediate deployment if cases emerge",
+        "Promotion of voluntary mask-wearing in crowded public spaces and public transport"
       ],
       "testing_centers": 1,
-      "reason": "No projected cases within 72 hours, maintaining high alert and proactive surveillance."
+      "reason": "Zero projected cases, classified for proactive monitoring and preparedness."
     },
     {
       "name": "Aliganj",
       "level": "yellow",
       "restrictions": [
-        "Enhanced public health advisories on flu symptoms and prevention",
-        "Promotion of hand hygiene and respiratory etiquette"
+        "Enhanced surveillance for flu-like symptoms in all healthcare facilities",
+        "Public health advisory on flu symptoms, personal hygiene, and respiratory etiquette",
+        "Preparation of rapid response teams for immediate deployment if cases emerge",
+        "Promotion of voluntary mask-wearing in crowded public spaces and public transport"
       ],
       "testing_centers": 1,
-      "reason": "No projected cases within 72 hours, maintaining high alert and proactive surveillance."
+      "reason": "Zero projected cases, classified for proactive monitoring and preparedness."
     },
     {
       "name": "Indira Nagar",
       "level": "yellow",
       "restrictions": [
-        "Enhanced public health advisories on flu symptoms and prevention",
-        "Promotion of hand hygiene and respiratory etiquette"
+        "Enhanced surveillance for flu-like symptoms in all healthcare facilities",
+        "Public health advisory on flu symptoms, personal hygiene, and respiratory etiquette",
+        "Preparation of rapid response teams for immediate deployment if cases emerge",
+        "Promotion of voluntary mask-wearing in crowded public spaces and public transport"
       ],
       "testing_centers": 1,
-      "reason": "No projected cases within 72 hours, maintaining high alert and proactive surveillance."
+      "reason": "Zero projected cases, classified for proactive monitoring and preparedness."
     },
     {
       "name": "Rajajipuram",
       "level": "yellow",
       "restrictions": [
-        "Enhanced public health advisories on flu symptoms and prevention",
-        "Promotion of hand hygiene and respiratory etiquette"
+        "Enhanced surveillance for flu-like symptoms in all healthcare facilities",
+        "Public health advisory on flu symptoms, personal hygiene, and respiratory etiquette",
+        "Preparation of rapid response teams for immediate deployment if cases emerge",
+        "Promotion of voluntary mask-wearing in crowded public spaces and public transport"
       ],
       "testing_centers": 1,
-      "reason": "No projected cases within 72 hours, maintaining high alert and proactive surveillance."
+      "reason": "Zero projected cases, classified for proactive monitoring and preparedness."
     }
   ],
   "resource_plan": {

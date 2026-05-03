@@ -6,102 +6,200 @@
 <title>Staff Login — ContagionGrid</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Bebas+Neue&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --red:#E8341A;--red-dim:#9B2211;
-  --bg:#0A0A0A;--bg2:#111111;--bg3:#181818;--bg4:#1F1F1F;
-  --border:#2A2A2A;--border2:#333;
-  --text:#FFFFFF;--text2:#AAAAAA;--text3:#555;
-  --green:#22C55E;--amber:#F59E0B;--blue:#3B82F6;--teal:#14B8A6;
+  --red:#FF3D1F;--red-dim:#9B2211;--red-glow:rgba(255,61,31,0.35);
+  --bg:#04040a;--bg2:#0a0a14;--bg3:#11111e;--bg4:#18182a;
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.1);
+  --text:#F0F0FF;--text2:#8888AA;--text3:#3a3a5c;
+  --green:#22C55E;--amber:#F59E0B;--blue:#4F8EF7;--teal:#14B8A6;
+  --blue-glow:rgba(79,142,247,0.3);--green-glow:rgba(34,197,94,0.3);--amber-glow:rgba(245,158,11,0.3);
 }
-html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;overflow:hidden}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;overflow:hidden}
 
-/* GRID BG */
-body::before{
-  content:'';position:fixed;inset:0;pointer-events:none;
-  background-image:linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px);
-  background-size:48px 48px;
-}
+/* ANIMATED BG */
+.bg-canvas{position:fixed;inset:0;z-index:0;overflow:hidden}
+.bg-orb{position:absolute;border-radius:50%;filter:blur(120px);opacity:.18;animation:orbFloat 18s ease-in-out infinite}
+.bg-orb.o1{width:600px;height:600px;background:var(--red);top:-200px;left:-200px;animation-delay:0s}
+.bg-orb.o2{width:500px;height:500px;background:#4F8EF7;bottom:-100px;right:-100px;animation-delay:-6s}
+.bg-orb.o3{width:400px;height:400px;background:#a855f7;top:40%;left:60%;animation-delay:-12s}
+@keyframes orbFloat{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(30px,-30px) scale(1.05)}66%{transform:translate(-20px,20px) scale(.97)}}
+
+/* GRID */
+.bg-grid{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(255,255,255,0.022) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.022) 1px,transparent 1px);
+  background-size:48px 48px}
+.bg-vignette{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse 80% 80% at 50% 50%,transparent 40%,rgba(4,4,10,0.7) 100%)}
 
 /* NAV */
-nav{position:fixed;top:0;left:0;right:0;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:16px 48px;border-bottom:0.5px solid var(--border);background:rgba(10,10,10,0.92);backdrop-filter:blur(12px)}
-.nav-logo{display:flex;align-items:center;gap:10px;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;text-decoration:none;color:var(--text)}
-.nav-logo .dot{width:8px;height:8px;background:var(--red);border-radius:50%;animation:pulse 2s infinite}
-.nav-logo .red{color:var(--red)}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(.85)}}
-.nav-back{color:var(--text2);text-decoration:none;font-size:13px;font-family:'JetBrains Mono',monospace;letter-spacing:.5px;transition:color .2s}
-.nav-back:hover{color:var(--text)}
+nav{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;align-items:center;justify-content:space-between;padding:16px 48px;
+  border-bottom:1px solid var(--border);background:rgba(4,4,10,0.6);backdrop-filter:blur(24px)}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text)}
+.nav-logo-icon{position:relative;width:28px;height:28px}
+.nav-logo-icon .ring{position:absolute;inset:0;border-radius:50%;border:2px solid var(--red);opacity:.5;animation:pingRing 2s ease-in-out infinite}
+.nav-logo-icon .dot{position:absolute;inset:6px;border-radius:50%;background:var(--red);box-shadow:0 0 12px var(--red)}
+@keyframes pingRing{0%,100%{transform:scale(1);opacity:.5}50%{transform:scale(1.3);opacity:0}}
+.nav-logo-text{font-family:'Bebas Neue',sans-serif;font-size:21px;letter-spacing:2px}
+.nav-logo-text span{color:var(--red)}
+.nav-back{color:var(--text2);text-decoration:none;font-size:12px;font-family:'JetBrains Mono',monospace;letter-spacing:.5px;
+  padding:6px 14px;border:1px solid var(--border2);border-radius:6px;transition:all .2s}
+.nav-back:hover{color:var(--text);border-color:rgba(255,255,255,0.2);background:rgba(255,255,255,0.05)}
 
-/* WRAPPER */
-.page{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding-top:64px;transition:opacity .35s,transform .35s}
-.page.hidden{opacity:0;transform:scale(.97);pointer-events:none}
+/* PAGES */
+.page{position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;padding-top:72px;
+  transition:opacity .4s,transform .4s}
+.page.hidden{opacity:0;transform:scale(.96);pointer-events:none}
 
 /* ── LANDING ── */
-.landing-inner{display:flex;flex-direction:column;align-items:center;text-align:center}
+.landing-inner{display:flex;flex-direction:column;align-items:center;text-align:center;max-width:780px;padding:0 24px}
 
-.secure-badge{display:inline-flex;align-items:center;gap:8px;border:0.5px solid rgba(232,52,26,0.4);border-radius:100px;padding:6px 18px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px;color:#e05a4a;margin-bottom:28px;background:rgba(192,57,43,0.1)}
-.secure-badge .blink{width:6px;height:6px;background:#e05a4a;border-radius:50%;animation:pulse 1.4s infinite;flex-shrink:0}
+.secure-badge{display:inline-flex;align-items:center;gap:8px;
+  border:1px solid rgba(255,61,31,0.3);border-radius:100px;padding:6px 18px;
+  font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2.5px;color:rgba(255,100,70,0.9);
+  margin-bottom:32px;background:rgba(255,61,31,0.06);backdrop-filter:blur(8px)}
+.secure-badge .blink{width:5px;height:5px;background:#FF3D1F;border-radius:50%;
+  box-shadow:0 0 8px #FF3D1F;animation:blink 1.2s ease-in-out infinite;flex-shrink:0}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
 
-.landing-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(38px,6vw,68px);letter-spacing:5px;line-height:1;margin-bottom:12px}
-.landing-sub{font-size:14px;color:var(--text3);font-family:'JetBrains Mono',monospace;letter-spacing:1px;margin-bottom:52px}
+.landing-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,5.5vw,62px);
+  letter-spacing:6px;line-height:1.05;margin-bottom:14px;
+  background:linear-gradient(180deg,#fff 0%,rgba(255,255,255,.65) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.landing-sub{font-size:13px;color:var(--text3);font-family:'JetBrains Mono',monospace;
+  letter-spacing:1px;margin-bottom:56px}
 
-.cards-row{display:flex;gap:20px;flex-wrap:wrap;justify-content:center}
-.id-card{width:210px;background:var(--bg2);border:0.5px solid var(--border);border-radius:14px;padding:32px 24px;display:flex;flex-direction:column;align-items:center;gap:16px;cursor:pointer;transition:transform .2s,border-color .2s,background .2s;position:relative;overflow:hidden}
-.id-card::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,var(--card-glow,#fff) 0%,transparent 70%);opacity:0;transition:opacity .3s}
-.id-card:hover{transform:translateY(-4px);background:var(--bg3)}
-.id-card:hover::after{opacity:.07}
-.id-card.blue{--card-glow:var(--blue)}.id-card.blue:hover{border-color:rgba(59,130,246,0.45)}
-.id-card.green{--card-glow:var(--green)}.id-card.green:hover{border-color:rgba(34,197,94,0.45)}
-.id-card.amber{--card-glow:var(--amber)}.id-card.amber:hover{border-color:rgba(245,158,11,0.45)}
+.cards-row{display:flex;gap:18px;flex-wrap:wrap;justify-content:center}
 
-.icon-wrap{width:58px;height:58px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0}
-.icon-wrap.blue{background:rgba(59,130,246,0.15)}
-.icon-wrap.green{background:rgba(34,197,94,0.15)}
-.icon-wrap.amber{background:rgba(245,158,11,0.15)}
-.card-label{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;text-align:center}
-.card-hint{font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;text-align:center;line-height:1.5}
+.id-card{
+  width:210px;
+  background:rgba(255,255,255,0.03);
+  border:1px solid var(--border);
+  border-radius:20px;padding:32px 22px;
+  display:flex;flex-direction:column;align-items:center;gap:14px;
+  cursor:pointer;transition:all .35s cubic-bezier(.22,1,.36,1);
+  position:relative;overflow:hidden;
+  backdrop-filter:blur(12px)
+}
+.id-card::before{
+  content:'';position:absolute;inset:0;border-radius:20px;
+  background:radial-gradient(circle at 50% 0%,var(--card-glow,rgba(255,255,255,0.05)) 0%,transparent 70%);
+  opacity:0;transition:opacity .35s}
+.id-card::after{
+  content:'';position:absolute;top:0;left:20%;right:20%;height:1px;
+  background:linear-gradient(90deg,transparent,var(--card-line,rgba(255,255,255,.2)),transparent);
+  opacity:0;transition:opacity .35s}
+.id-card:hover{transform:translateY(-8px);border-color:var(--card-border,rgba(255,255,255,.15));
+  box-shadow:0 16px 48px rgba(0,0,0,.5),0 0 0 1px var(--card-border,rgba(255,255,255,.06)),
+  inset 0 0 80px rgba(0,0,0,.1)}
+.id-card:hover::before{opacity:1}
+.id-card:hover::after{opacity:1}
+.id-card:active{transform:translateY(-4px)}
 
-.return-link{margin-top:40px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px;color:var(--text3);cursor:pointer;border-bottom:0.5px solid var(--text3);padding-bottom:2px;text-decoration:none;transition:color .2s}
+.id-card.blue{--card-glow:rgba(79,142,247,0.12);--card-line:#4F8EF7;--card-border:rgba(79,142,247,0.35)}
+.id-card.blue:hover{box-shadow:0 16px 48px rgba(0,0,0,.5),0 0 40px rgba(79,142,247,.12),0 0 0 1px rgba(79,142,247,.25)}
+.id-card.green{--card-glow:rgba(34,197,94,0.12);--card-line:#22C55E;--card-border:rgba(34,197,94,0.35)}
+.id-card.green:hover{box-shadow:0 16px 48px rgba(0,0,0,.5),0 0 40px rgba(34,197,94,.12),0 0 0 1px rgba(34,197,94,.25)}
+.id-card.amber{--card-glow:rgba(245,158,11,0.12);--card-line:#F59E0B;--card-border:rgba(245,158,11,0.35)}
+.id-card.amber:hover{box-shadow:0 16px 48px rgba(0,0,0,.5),0 0 40px rgba(245,158,11,.12),0 0 0 1px rgba(245,158,11,.25)}
+
+.icon-wrap{width:56px;height:56px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;transition:transform .35s}
+.id-card:hover .icon-wrap{transform:scale(1.1)}
+.icon-wrap.blue{background:rgba(79,142,247,0.1);border:1px solid rgba(79,142,247,0.2);box-shadow:0 0 20px rgba(79,142,247,0.1)}
+.icon-wrap.green{background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);box-shadow:0 0 20px rgba(34,197,94,0.1)}
+.icon-wrap.amber{background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);box-shadow:0 0 20px rgba(245,158,11,0.1)}
+
+.card-label{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:3px;text-align:center}
+.card-hint{font-size:11px;color:var(--text2);font-family:'JetBrains Mono',monospace;text-align:center;line-height:1.7;opacity:.7}
+
+.return-link{margin-top:44px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px;
+  color:var(--text3);cursor:pointer;text-decoration:none;transition:color .2s;
+  display:inline-flex;align-items:center;gap:8px}
 .return-link:hover{color:var(--text2)}
 
 /* ── LOGIN PANEL ── */
-.login-box{width:100%;max-width:420px;background:rgba(10,10,10,0.96);border:0.5px solid var(--border2);border-radius:18px;padding:40px 36px;position:relative;backdrop-filter:blur(20px)}
-.login-top-line{position:absolute;top:0;left:50%;transform:translateX(-50%);width:55%;height:1px;background:linear-gradient(90deg,transparent,var(--accent,#fff),transparent);opacity:.5}
+.login-box{
+  width:100%;max-width:420px;
+  background:rgba(10,10,20,0.7);
+  border:1px solid var(--border);
+  border-radius:24px;padding:44px 40px;
+  position:relative;backdrop-filter:blur(32px);
+  box-shadow:0 32px 80px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.06)
+}
+.login-glow-line{position:absolute;top:0;left:15%;right:15%;height:1px;
+  background:linear-gradient(90deg,transparent,var(--accent,rgba(255,255,255,0.4)),transparent);opacity:.7}
 
-.role-badge{display:flex;align-items:center;gap:10px;margin-bottom:24px}
-.role-dot{width:9px;height:9px;border-radius:50%;background:var(--accent,#fff);box-shadow:0 0 8px var(--accent,#fff)}
-.role-name{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px;color:var(--accent,#fff);text-transform:uppercase}
+.role-badge{display:inline-flex;align-items:center;gap:8px;margin-bottom:22px;
+  padding:5px 14px 5px 10px;border-radius:100px;border:1px solid var(--accent-border,rgba(255,255,255,.1));
+  background:var(--accent-bg,rgba(255,255,255,.03))}
+.role-dot{width:8px;height:8px;border-radius:50%;background:var(--accent,#fff);
+  box-shadow:0 0 10px var(--accent,#fff),0 0 20px var(--accent,rgba(255,255,255,.3));flex-shrink:0}
+.role-name{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--accent,#fff);text-transform:uppercase}
 
 .login-title{font-family:'Bebas Neue',sans-serif;font-size:34px;letter-spacing:4px;margin-bottom:5px}
-.login-sub{font-size:12px;color:var(--text3);margin-bottom:32px;font-family:'JetBrains Mono',monospace;letter-spacing:.3px}
+.login-sub{font-size:12px;color:var(--text2);margin-bottom:32px;font-family:'JetBrains Mono',monospace;letter-spacing:.3px}
 
 .field{margin-bottom:16px}
-.field label{display:block;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-bottom:7px}
-.field input{width:100%;background:var(--bg3);border:0.5px solid var(--border);border-radius:8px;padding:12px 14px;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s,background .2s}
-.field input:focus{border-color:var(--accent,#555);background:var(--bg4)}
-.field input.err{border-color:var(--red) !important}
+.field label{display:block;font-family:'JetBrains Mono',monospace;font-size:9px;
+  letter-spacing:2.5px;color:var(--text3);text-transform:uppercase;margin-bottom:8px}
+.field input{
+  width:100%;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:10px;padding:13px 16px;
+  color:var(--text);font-size:14px;font-family:'Inter',sans-serif;
+  outline:none;transition:all .25s}
 .field input::placeholder{color:var(--text3)}
+.field input:focus{
+  border-color:var(--accent,rgba(255,255,255,.3));
+  background:rgba(255,255,255,0.06);
+  box-shadow:0 0 0 3px var(--accent-glow,rgba(255,255,255,0.06)),inset 0 0 0 1px var(--accent,transparent)}
+.field input.err{border-color:var(--red)!important;box-shadow:0 0 0 3px rgba(255,61,31,0.12)!important}
 
-.login-btn{width:100%;margin-top:6px;padding:13px;border:none;border-radius:9px;background:var(--accent,#E8341A);color:#fff;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;cursor:pointer;transition:opacity .2s,transform .15s}
-.login-btn:hover{opacity:.85;transform:translateY(-1px)}
+.login-btn{
+  width:100%;margin-top:10px;padding:14px;border:none;border-radius:12px;
+  background:var(--accent,#FF3D1F);color:#fff;
+  font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:3px;
+  cursor:pointer;transition:all .25s;
+  box-shadow:0 0 0 1px var(--accent-border,rgba(255,255,255,.15)),0 8px 24px var(--accent-glow,rgba(255,61,31,.3))}
+.login-btn:hover{transform:translateY(-2px);box-shadow:0 0 0 1px var(--accent-border,rgba(255,255,255,.2)),0 12px 36px var(--accent-glow,rgba(255,61,31,.45))}
 .login-btn:active{transform:translateY(0)}
 
-.err-msg{font-size:12px;color:var(--red);font-family:'JetBrains Mono',monospace;margin-top:8px;display:none}
+.err-msg{font-size:11px;color:#ff6b6b;font-family:'JetBrains Mono',monospace;margin-top:10px;
+  display:none;padding:8px 12px;background:rgba(255,61,31,0.08);border:1px solid rgba(255,61,31,0.2);border-radius:7px}
 .err-msg.show{display:block}
 
-.back-btn{display:block;text-align:center;margin-top:20px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px;color:var(--text3);cursor:pointer;transition:color .2s;background:none;border:none;width:100%}
+.back-btn{display:block;text-align:center;margin-top:20px;font-family:'JetBrains Mono',monospace;
+  font-size:11px;letter-spacing:1.5px;color:var(--text3);cursor:pointer;transition:color .2s;
+  background:none;border:none;width:100%;padding:6px}
 .back-btn:hover{color:var(--text2)}
+
+/* FOOTER DOTS */
+.dots-bar{position:fixed;bottom:32px;left:50%;transform:translateX(-50%);
+  display:flex;gap:6px;z-index:15}
+.dots-bar .d{width:4px;height:4px;border-radius:50%;background:var(--border2);transition:all .3s}
+.dots-bar .d.active{width:16px;border-radius:2px;background:var(--text2)}
 </style>
 </head>
 <body>
 
-<!-- NAV -->
+<div class="bg-canvas">
+  <div class="bg-orb o1"></div>
+  <div class="bg-orb o2"></div>
+  <div class="bg-orb o3"></div>
+</div>
+<div class="bg-grid"></div>
+<div class="bg-vignette"></div>
+
 <nav>
   <a class="nav-logo" href="/">
-    <div class="dot"></div>
-    Contagion <span class="red">Grid</span>
+    <div class="nav-logo-icon">
+      <div class="ring"></div>
+      <div class="dot"></div>
+    </div>
+    <div class="nav-logo-text">Contagion<span>Grid</span></div>
   </a>
   <a href="/" class="nav-back">← Public Portal</a>
 </nav>
@@ -109,22 +207,22 @@ nav{position:fixed;top:0;left:0;right:0;z-index:10;display:flex;align-items:cent
 <!-- ── PAGE 1: LANDING ── -->
 <div class="page" id="pg-landing">
   <div class="landing-inner">
-    <div class="secure-badge"><span class="blink"></span> SECURE ACCESS</div>
-    <div class="landing-title">STAFF COMMAND NODE</div>
-    <div class="landing-sub">Select identity node to initialize secure handshake.</div>
+    <div class="secure-badge"><span class="blink"></span> SECURE STAFF ACCESS PORTAL</div>
+    <div class="landing-title">STAFF COMMAND<br>NODE</div>
+    <div class="landing-sub">SELECT IDENTITY NODE TO INITIALIZE SECURE HANDSHAKE</div>
 
     <div class="cards-row">
-      <div class="id-card blue" onclick="openLogin('hospital')">
+      <div class="id-card blue" onclick="openLogin('hospital')" id="card-hospital">
         <div class="icon-wrap blue">🖥️</div>
         <div class="card-label">Hospital Admin</div>
         <div class="card-hint">OPD tokens · Patient list<br>Disease categorizer</div>
       </div>
-      <div class="id-card green" onclick="openLogin('cmo')">
+      <div class="id-card green" onclick="openLogin('cmo')" id="card-cmo">
         <div class="icon-wrap green">🛡️</div>
         <div class="card-label">CMO Office</div>
         <div class="card-hint">ContagionGrid reports<br>Approve + forward</div>
       </div>
-      <div class="id-card amber" onclick="openLogin('dm')">
+      <div class="id-card amber" onclick="openLogin('dm')" id="card-dm">
         <div class="icon-wrap amber">💼</div>
         <div class="card-label">DM Office</div>
         <div class="card-hint">Action orders<br>Zone alerts · Roadblocks</div>
@@ -138,9 +236,9 @@ nav{position:fixed;top:0;left:0;right:0;z-index:10;display:flex;align-items:cent
 <!-- ── PAGE 2: LOGIN ── -->
 <div class="page hidden" id="pg-login">
   <div class="login-box" id="login-box">
-    <div class="login-top-line"></div>
+    <div class="login-glow-line"></div>
 
-    <div class="role-badge">
+    <div class="role-badge" id="role-badge">
       <div class="role-dot" id="role-dot"></div>
       <div class="role-name" id="role-name">HOSPITAL ADMIN</div>
     </div>
@@ -150,22 +248,25 @@ nav{position:fixed;top:0;left:0;right:0;z-index:10;display:flex;align-items:cent
 
     <div class="field">
       <label>Username / Staff ID</label>
-      <input type="text" id="inp-user" placeholder="Enter your ID..." autocomplete="off">
+      <input type="text" id="inp-user" placeholder="Enter your staff ID..." autocomplete="off">
     </div>
     <div class="field">
       <label>Password</label>
       <input type="password" id="inp-pass" placeholder="••••••••••" onkeydown="if(event.key==='Enter')doLogin()">
     </div>
-    <div class="err-msg" id="err-msg">⚠ Invalid credentials — try again</div>
+    <div class="err-msg" id="err-msg">⚠ Invalid credentials — check and retry</div>
 
     <button class="login-btn" id="login-btn" onclick="doLogin()">INITIALIZE ACCESS</button>
     <button class="back-btn" onclick="goBack()">← Back to Command Node</button>
   </div>
 </div>
 
+<div class="dots-bar">
+  <div class="d active" id="dot1"></div>
+  <div class="d" id="dot2"></div>
+</div>
+
 <script>
-// ── Credentials (demo — replace with real auth) ──────────────────────
-// Real app mein: POST /api/login endpoint pe verify karo
 const CREDS = {
   hospital: { user: "hospital1",  pass: "hosp123",  redirect: "/hospital_dashboard" },
   cmo:      { user: "cmo",       pass: "cmo123",   redirect: "/cmo_dashboard"      },
@@ -176,20 +277,26 @@ const ROLES = {
   hospital: {
     label:   "HOSPITAL ADMIN",
     sub:     "Hospital administration access portal",
-    accent:  "#3B82F6",
-    btnCls:  "bg-blue",
+    accent:  "#4F8EF7",
+    accentGlow: "rgba(79,142,247,0.25)",
+    accentBorder: "rgba(79,142,247,0.3)",
+    accentBg: "rgba(79,142,247,0.06)",
   },
   cmo: {
     label:   "CMO OFFICE",
     sub:     "Chief Medical Officer — Layer 3 access",
     accent:  "#22C55E",
-    btnCls:  "bg-green",
+    accentGlow: "rgba(34,197,94,0.25)",
+    accentBorder: "rgba(34,197,94,0.3)",
+    accentBg: "rgba(34,197,94,0.06)",
   },
   dm: {
     label:   "DM OFFICE",
     sub:     "District Magistrate — Layer 4 access",
     accent:  "#F59E0B",
-    btnCls:  "bg-amber",
+    accentGlow: "rgba(245,158,11,0.25)",
+    accentBorder: "rgba(245,158,11,0.3)",
+    accentBg: "rgba(245,158,11,0.06)",
   },
 };
 
@@ -198,33 +305,43 @@ let currentRole = null;
 function openLogin(role) {
   currentRole = role;
   const r = ROLES[role];
+  const box = document.getElementById("login-box");
+  const badge = document.getElementById("role-badge");
 
-  // Update UI
-  document.getElementById("role-dot").style.background     = r.accent;
-  document.getElementById("role-dot").style.boxShadow      = `0 0 8px ${r.accent}`;
-  document.getElementById("role-name").textContent          = r.label;
-  document.getElementById("role-name").style.color          = r.accent;
-  document.getElementById("login-sub").textContent          = r.sub;
-  document.getElementById("login-btn").style.background     = r.accent;
-  document.getElementById("login-box").style.setProperty("--accent", r.accent);
+  document.getElementById("role-dot").style.background = r.accent;
+  document.getElementById("role-dot").style.boxShadow = `0 0 10px ${r.accent},0 0 20px ${r.accentGlow}`;
+  document.getElementById("role-name").textContent = r.label;
+  document.getElementById("role-name").style.color = r.accent;
+  document.getElementById("login-sub").textContent = r.sub;
+  document.getElementById("login-btn").style.background = r.accent;
+  document.getElementById("login-btn").style.boxShadow = `0 0 0 1px ${r.accentBorder},0 8px 24px ${r.accentGlow}`;
 
-  // Clear fields
+  box.style.setProperty("--accent", r.accent);
+  box.style.setProperty("--accent-glow", r.accentGlow);
+  box.style.setProperty("--accent-border", r.accentBorder);
+  badge.style.setProperty("--accent", r.accent);
+  badge.style.setProperty("--accent-border", r.accentBorder);
+  badge.style.setProperty("--accent-bg", r.accentBg);
+
   document.getElementById("inp-user").value = "";
   document.getElementById("inp-pass").value = "";
   document.getElementById("err-msg").classList.remove("show");
   document.getElementById("inp-user").classList.remove("err");
   document.getElementById("inp-pass").classList.remove("err");
 
-  // Switch pages
   document.getElementById("pg-landing").classList.add("hidden");
   document.getElementById("pg-login").classList.remove("hidden");
+  document.getElementById("dot1").classList.remove("active");
+  document.getElementById("dot2").classList.add("active");
 
-  setTimeout(()=>document.getElementById("inp-user").focus(), 350);
+  setTimeout(()=>document.getElementById("inp-user").focus(), 400);
 }
 
 function goBack() {
   document.getElementById("pg-login").classList.add("hidden");
   document.getElementById("pg-landing").classList.remove("hidden");
+  document.getElementById("dot1").classList.add("active");
+  document.getElementById("dot2").classList.remove("active");
 }
 
 function doLogin() {
@@ -234,41 +351,25 @@ function doLogin() {
   const pi = document.getElementById("inp-pass");
   const em = document.getElementById("err-msg");
 
-  // Empty check
   if (!u || !p) {
     if (!u) ui.classList.add("err");
     if (!p) pi.classList.add("err");
     em.textContent = "⚠ Please fill in both fields";
     em.classList.add("show");
     setTimeout(() => {
-      ui.classList.remove("err");
-      pi.classList.remove("err");
-      em.classList.remove("show");
-    }, 2000);
+      ui.classList.remove("err"); pi.classList.remove("err"); em.classList.remove("show");
+    }, 2500);
     return;
   }
 
   const cred = CREDS[currentRole];
-
-  // ── Option A: Simple hardcoded check (demo) ──────────────────────────
   if (u === cred.user && p === cred.pass) {
-    // Redirect
-    window.location.href = cred.redirect;
+    const btn = document.getElementById("login-btn");
+    btn.textContent = "AUTHENTICATED ✓";
+    btn.style.opacity = ".7";
+    setTimeout(() => { window.location.href = cred.redirect; }, 500);
     return;
   }
-
-  // ── Option B (commented): POST to /api/login for real auth ───────────
-  // fetch("/api/login", {
-  //   method: "POST",
-  //   headers: {"Content-Type": "application/json"},
-  //   body: JSON.stringify({role: currentRole, username: u, password: p})
-  // })
-  // .then(r => r.json())
-  // .then(d => {
-  //   if (d.status === "success") window.location.href = cred.redirect;
-  //   else showError();
-  // })
-  // .catch(showError);
 
   showError();
 }
@@ -277,16 +378,11 @@ function showError() {
   const ui = document.getElementById("inp-user");
   const pi = document.getElementById("inp-pass");
   const em = document.getElementById("err-msg");
-  ui.classList.add("err");
-  pi.classList.add("err");
+  ui.classList.add("err"); pi.classList.add("err");
   em.textContent = "⚠ Invalid credentials — check and retry";
   em.classList.add("show");
   document.getElementById("inp-pass").value = "";
-  setTimeout(() => {
-    ui.classList.remove("err");
-    pi.classList.remove("err");
-    em.classList.remove("show");
-  }, 2500);
+  setTimeout(() => { ui.classList.remove("err"); pi.classList.remove("err"); em.classList.remove("show"); }, 2500);
 }
 </script>
 </body>

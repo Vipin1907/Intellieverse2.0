@@ -10,157 +10,171 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --red:#E8341A;--red-dim:#9B2211;
-  --bg:#0A0A0A;--bg2:#111111;--bg3:#181818;--bg4:#1F1F1F;
-  --border:#2A2A2A;--border2:#333;
-  --text:#FFFFFF;--text2:#AAAAAA;--text3:#555;
-  --green:#22C55E;--amber:#F59E0B;--blue:#3B82F6;--teal:#14B8A6;
+  --red:#FF3D1F;--bg:#04040a;--bg2:#08080f;--bg3:#0e0e1a;--bg4:#14142a;
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.1);
+  --text:#F0F0FF;--text2:#7878AA;--text3:#333355;
+  --green:#22C55E;--amber:#F59E0B;--blue:#4F8EF7;--teal:#14B8A6;
 }
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;overflow-x:hidden}
-
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(96,66,66,0.025) 1px,transparent 1px);
+  background-size:48px 48px}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse 70% 50% at 20% -5%,rgba(255,61,31,0.09) 0%,transparent 60%),radial-gradient(ellipse 50% 40% at 80% 5%,rgba(79,142,247,0.07) 0%,transparent 55%)}
 /* NAV */
-nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:16px 48px;border-bottom:0.5px solid var(--border);background:rgba(10,10,10,0.92);backdrop-filter:blur(12px)}
-.nav-logo{display:flex;align-items:center;gap:10px;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;text-decoration:none;color:var(--text)}
-.nav-logo .dot{width:8px;height:8px;background:var(--red);border-radius:50%;animation:pulse 2s infinite}
+nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:16px 52px;border-bottom:1px solid var(--border);background:rgba(4,4,10,0.75);backdrop-filter:blur(28px)}
+.nav-logo{display:flex;align-items:center;gap:11px;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1.5px;text-decoration:none;color:var(--text)}
+.nav-logo-icon{position:relative;width:26px;height:26px;flex-shrink:0}
+.nav-logo-icon .ring{position:absolute;inset:0;border-radius:50%;border:2px solid var(--red);opacity:.5;animation:pingRing 2s ease-in-out infinite}
+.nav-logo-icon .dot{position:absolute;inset:6px;border-radius:50%;background:var(--red);box-shadow:0 0 10px var(--red)}
+@keyframes pingRing{0%,100%{transform:scale(1);opacity:.5}60%{transform:scale(1.4);opacity:0}}
 .nav-logo .red{color:var(--red)}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(.85)}}
 .nav-links{display:flex;gap:32px}
-.nav-links a{color:var(--text2);text-decoration:none;font-size:14px;transition:color .2s}
+.nav-links a{color:var(--text2);text-decoration:none;font-size:14px;transition:color .2s;font-weight:450}
 .nav-links a:hover{color:var(--text)}
-.nav-cta{padding:10px 22px;background:var(--red);color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none;transition:background .2s}
-.nav-cta:hover{background:#c42d16}
-
+.nav-cta{padding:9px 22px;background:linear-gradient(135deg,var(--red),#c42d16);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none;transition:all .25s;box-shadow:0 0 24px rgba(255,61,31,0.3),inset 0 1px 0 rgba(255,255,255,.15)}
+.nav-cta:hover{transform:translateY(-2px);box-shadow:0 0 40px rgba(255,61,31,0.5),inset 0 1px 0 rgba(255,255,255,.15)}
 /* HERO */
-.hero{min-height:92vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:80px 48px 60px;position:relative;overflow:hidden}
-.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 40%,rgba(232,52,26,0.07) 0%,transparent 70%);pointer-events:none}
-.hero-badge{display:inline-flex;align-items:center;gap:8px;border:0.5px solid var(--border2);border-radius:100px;padding:6px 18px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px;color:var(--text2);margin-bottom:40px;background:rgba(24,24,24,0.8)}
-.hero-badge .dot{width:6px;height:6px;background:var(--red);border-radius:50%;animation:pulse 2s infinite}
+.hero{min-height:92vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:80px 52px 60px;position:relative;overflow:hidden;z-index:1}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(255,61,31,0.25);border-radius:100px;padding:7px 20px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2.5px;color:rgba(255,100,70,0.9);margin-bottom:44px;background:rgba(255,61,31,0.06);backdrop-filter:blur(12px)}
+.hero-badge .dot{width:5px;height:5px;background:var(--red);border-radius:50%;box-shadow:0 0 8px var(--red);animation:blink 1.4s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
 .hero-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(80px,14vw,180px);line-height:.92;letter-spacing:-1px;margin-bottom:32px}
-.hero-title .grid-red{color:var(--red)}
-.hero-title .dot-blue{color:#378ADD}
-.hero-desc{max-width:560px;font-size:16px;line-height:1.7;color:var(--text2);margin-bottom:48px}
-.hero-btns{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
-.btn-primary{padding:14px 32px;background:var(--red);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none;transition:background .2s}
-.btn-primary:hover{background:#c42d16}
-.btn-outline{padding:13px 32px;background:transparent;color:var(--text);border:0.5px solid var(--border2);border-radius:8px;font-size:15px;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none;transition:all .2s}
-.btn-outline:hover{border-color:#555;background:var(--bg3)}
-
+.hero-title .grid-red{color:var(--red);text-shadow:0 0 80px rgba(255,61,31,0.4),0 0 160px rgba(255,61,31,0.15)}
+.hero-title .dot-blue{color:#4F8EF7}
+.hero-desc{max-width:540px;font-size:16px;line-height:1.85;color:var(--text2);margin-bottom:52px;font-weight:400}
+.hero-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.btn-primary{padding:14px 36px;background:linear-gradient(135deg,var(--red),#c42d16);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none;transition:all .25s;box-shadow:0 0 28px rgba(255,61,31,0.35),inset 0 1px 0 rgba(255,255,255,.15)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 48px rgba(255,61,31,0.55),inset 0 1px 0 rgba(255,255,255,.15)}
+.btn-outline{padding:13px 36px;background:rgba(255,255,255,0.04);color:var(--text);border:1px solid var(--border2);border-radius:10px;font-size:15px;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none;transition:all .25s;backdrop-filter:blur(10px)}
+.btn-outline:hover{border-color:rgba(255,255,255,0.2);background:rgba(255,255,255,0.08);transform:translateY(-2px)}
 /* STATS BAR */
-.stats-bar{display:grid;grid-template-columns:repeat(4,1fr);border-top:0.5px solid var(--border);border-bottom:0.5px solid var(--border)}
-.stat-cell{padding:28px 32px;border-right:0.5px solid var(--border);text-align:center}
+.stats-bar{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:rgba(255,255,255,0.015);position:relative;z-index:1}
+.stat-cell{padding:28px 32px;border-right:1px solid var(--border);text-align:center;transition:background .25s}
+.stat-cell:hover{background:rgba(255,255,255,0.025)}
 .stat-cell:last-child{border-right:none}
 .stat-num{font-family:'Bebas Neue',sans-serif;font-size:48px;line-height:1}
-.stat-lbl{font-size:11px;color:var(--text3);margin-top:4px;font-family:'JetBrains Mono',monospace;letter-spacing:1px}
-.c-red{color:var(--red)}.c-amber{color:var(--amber)}.c-teal{color:var(--teal)}.c-blue{color:var(--blue)}.c-green{color:var(--green)}
-
-/* HOSPITAL SECTION */
-.section{padding:64px 48px}
-.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-.section-title{font-family:'Bebas Neue',sans-serif;font-size:38px;letter-spacing:.5px}
-.section-sub{font-size:12px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:32px}
-.live-dot{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--green);font-family:'JetBrains Mono',monospace}
-.live-dot::before{content:'';width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 1.5s infinite;flex-shrink:0}
-
-/* HOSPITAL GRID — 2 per row */
+.stat-lbl{font-size:10px;color:var(--text3);margin-top:6px;font-family:'JetBrains Mono',monospace;letter-spacing:2px}
+.c-red{color:var(--red);text-shadow:0 0 28px rgba(255,61,31,0.45)}
+.c-amber{color:var(--amber);text-shadow:0 0 24px rgba(245,158,11,0.4)}
+.c-teal{color:var(--teal);text-shadow:0 0 24px rgba(20,184,166,0.4)}
+.c-blue{color:var(--blue);text-shadow:0 0 24px rgba(79,142,247,0.4)}
+.c-green{color:var(--green);text-shadow:0 0 20px rgba(34,197,94,0.35)}
+/* SECTION */
+.section{padding:72px 52px;position:relative;z-index:1}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.section-title{font-family:'Bebas Neue',sans-serif;font-size:40px;letter-spacing:.5px}
+.section-sub{font-size:12px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:36px;letter-spacing:.5px}
+.live-dot{display:inline-flex;align-items:center;gap:6px;font-size:10px;color:var(--green);font-family:'JetBrains Mono',monospace;background:rgba(34,197,94,0.06);padding:5px 14px;border-radius:100px;border:1px solid rgba(34,197,94,0.2)}
+.live-dot::before{content:'';width:5px;height:5px;background:var(--green);border-radius:50%;animation:blink 1.5s infinite;flex-shrink:0;box-shadow:0 0 8px var(--green)}
+/* HOSPITAL GRID */
 .hospitals-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.hcard{background:var(--bg2);border:0.5px solid var(--border);border-radius:12px;padding:22px;cursor:default;transition:border-color .2s,background .2s}
-.hcard:hover{border-color:var(--border2);background:var(--bg3)}
-.hcard.high-load{border-color:rgba(232,52,26,0.3)}
+.hcard{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:16px;padding:22px;cursor:default;transition:all .3s cubic-bezier(.22,1,.36,1);position:relative;overflow:hidden;backdrop-filter:blur(8px)}
+.hcard::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent)}
+.hcard:hover{border-color:var(--border2);transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,0.5)}
+.hcard.high-load{border-color:rgba(255,61,31,0.18);box-shadow:inset 0 0 40px rgba(255,61,31,0.03)}
 .hcard-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
-.hcard-info .hcard-name{font-size:15px;font-weight:500;margin-bottom:3px}
+.hcard-info .hcard-name{font-size:15px;font-weight:500;margin-bottom:4px}
 .hcard-info .hcard-loc{font-size:12px;color:var(--text2)}
-.hcard-dist{font-size:12px;color:var(--text3);font-family:'JetBrains Mono',monospace;white-space:nowrap;margin-left:12px}
+.hcard-dist{font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;white-space:nowrap;margin-left:12px;background:var(--bg4);padding:3px 9px;border-radius:4px}
 .hcard-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
-.hs{background:var(--bg4);border-radius:6px;padding:8px 10px;text-align:center}
+.hs{background:rgba(255,255,255,0.03);border:0.5px solid var(--border);border-radius:8px;padding:9px 10px;text-align:center}
 .hs-num{font-size:18px;font-weight:500;font-family:'JetBrains Mono',monospace}
 .hs-lbl{font-size:10px;color:var(--text3);margin-top:3px;letter-spacing:.3px}
 .badges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
 .badge{padding:3px 10px;border-radius:4px;font-size:11px;font-family:'JetBrains Mono',monospace;border:0.5px solid}
-.bg{background:rgba(34,197,94,0.1);color:var(--green);border-color:rgba(34,197,94,0.3)}
-.ba{background:rgba(245,158,11,0.1);color:var(--amber);border-color:rgba(245,158,11,0.3)}
-.br{background:rgba(232,52,26,0.1);color:var(--red);border-color:rgba(232,52,26,0.3)}
-.bb{background:rgba(59,130,246,0.1);color:var(--blue);border-color:rgba(59,130,246,0.3)}
-.opd-btn{width:100%;padding:10px;background:transparent;border:0.5px solid var(--red);color:var(--red);border-radius:6px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;transition:all .2s}
-.opd-btn:hover{background:var(--red);color:#fff}
-
-/* INTEL SECTION */
-.intel-section{padding:0 48px 72px}
+.bg{background:rgba(34,197,94,0.07);color:var(--green);border-color:rgba(34,197,94,0.2)}
+.ba{background:rgba(245,158,11,0.07);color:var(--amber);border-color:rgba(245,158,11,0.2)}
+.br{background:rgba(255,61,31,0.07);color:var(--red);border-color:rgba(255,61,31,0.2)}
+.bb{background:rgba(59,130,246,0.07);color:var(--blue);border-color:rgba(59,130,246,0.2)}
+.opd-btn{width:100%;padding:11px;background:rgba(255,61,31,0.05);border:0.5px solid rgba(255,61,31,0.25);color:var(--red);border-radius:8px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;transition:all .2s;letter-spacing:.5px}
+.opd-btn:hover{background:var(--red);color:#fff;border-color:var(--red);box-shadow:0 0 20px rgba(255,61,31,0.3)}
+/* INTEL */
+.intel-section{padding:0 52px 80px;position:relative;z-index:1}
 .intel-grid{display:grid;grid-template-columns:1fr 310px;gap:20px;align-items:start}
-.intel-main{background:var(--bg2);border:0.5px solid var(--border);border-radius:12px;padding:24px}
-.intel-main-title{font-family:'Bebas Neue',sans-serif;font-size:24px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between}
-.agent-list{display:flex;flex-direction:column;gap:0}
-.agent-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:0.5px solid var(--border)}
+.intel-main{background:linear-gradient(145deg,var(--bg2),var(--bg3));border:0.5px solid var(--border);border-radius:14px;padding:24px}
+.intel-main-title{font-family:'Bebas Neue',sans-serif;font-size:24px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;letter-spacing:1px}
+.agent-list{display:flex;flex-direction:column}
+.agent-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:0.5px solid var(--border)}
 .agent-row:last-child{border-bottom:none}
 .agent-left .agent-name{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text);font-weight:500}
 .agent-left .agent-sub{font-size:12px;color:var(--text3);margin-top:2px}
-.status-done{font-size:10px;padding:3px 10px;border-radius:3px;font-family:'JetBrains Mono',monospace;background:rgba(34,197,94,0.1);color:var(--green);border:0.5px solid rgba(34,197,94,0.3)}
+.status-done{font-size:10px;padding:3px 10px;border-radius:3px;font-family:'JetBrains Mono',monospace;background:rgba(34,197,94,0.07);color:var(--green);border:0.5px solid rgba(34,197,94,0.2)}
 .intel-footer{margin-top:18px;padding-top:14px;border-top:0.5px solid var(--border);font-size:12px;color:var(--text3);font-family:'JetBrains Mono',monospace}
-
 /* SIDEBAR CARDS */
 .intel-sidebar{display:flex;flex-direction:column;gap:10px}
-.icard{border-radius:10px;padding:14px;border:0.5px solid}
+.icard{border-radius:12px;padding:14px;border:0.5px solid;transition:transform .2s}
+.icard:hover{transform:translateY(-2px)}
 .icard-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
 .icard-title{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1.5px;font-weight:500}
 .icard-time{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3)}
 .icard-body{font-size:12px;color:var(--text2);line-height:1.6}
-.icard.green{background:rgba(34,197,94,0.05);border-color:rgba(34,197,94,0.3)}.icard.green .icard-title{color:var(--green)}
-.icard.red{background:rgba(232,52,26,0.05);border-color:rgba(232,52,26,0.3)}.icard.red .icard-title{color:var(--red)}
-.icard.amber{background:rgba(245,158,11,0.05);border-color:rgba(245,158,11,0.3)}.icard.amber .icard-title{color:var(--amber)}
-.icard.blue{background:rgba(59,130,246,0.05);border-color:rgba(59,130,246,0.3)}.icard.blue .icard-title{color:var(--blue)}
+.icard.green{background:rgba(34,197,94,0.04);border-color:rgba(34,197,94,0.18)}.icard.green .icard-title{color:var(--green)}
+.icard.red{background:rgba(255,61,31,0.04);border-color:rgba(255,61,31,0.18)}.icard.red .icard-title{color:var(--red)}
+.icard.amber{background:rgba(245,158,11,0.04);border-color:rgba(245,158,11,0.18)}.icard.amber .icard-title{color:var(--amber)}
+.icard.blue{background:rgba(59,130,246,0.04);border-color:rgba(59,130,246,0.18)}.icard.blue .icard-title{color:var(--blue)}
 .disease-big{font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--red);line-height:1.1;margin:3px 0}
 .zone-big{font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--blue);line-height:1.3}
 .road-blocked{color:var(--red);font-family:'JetBrains Mono',monospace;font-size:11px}
 .road-open{color:var(--green);font-family:'JetBrains Mono',monospace;font-size:11px}
-
 /* HOW IT WORKS */
-.how-section{padding:64px 48px;border-top:0.5px solid var(--border)}
-.steps-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin-top:40px}
-.step{padding:24px 20px;border-right:0.5px solid var(--border)}
+.how-section{padding:72px 52px;border-top:1px solid var(--border);position:relative;z-index:1}
+.steps-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin-top:44px}
+.step{padding:28px 22px;border-right:1px solid var(--border);transition:all .25s}
+.step:hover{background:rgba(255,255,255,0.02)}
 .step:last-child{border-right:none}
-.step-num{font-family:'Bebas Neue',sans-serif;font-size:44px;color:var(--red);opacity:.5;line-height:1;margin-bottom:10px}
-.step-title{font-size:13px;font-weight:500;margin-bottom:6px}
-.step-desc{font-size:12px;color:var(--text3);line-height:1.6}
-
+.step-num{font-family:'Bebas Neue',sans-serif;font-size:48px;color:var(--red);opacity:.3;line-height:1;margin-bottom:12px;transition:opacity .25s}
+.step:hover .step-num{opacity:.55}
+.step-title{font-size:13px;font-weight:500;margin-bottom:8px}
+.step-desc{font-size:12px;color:var(--text3);line-height:1.75}
 /* FOOTER */
-footer{border-top:0.5px solid var(--border);padding:24px 48px;display:flex;justify-content:space-between;align-items:center}
-.footer-logo{font-family:'Bebas Neue',sans-serif;font-size:18px}
+footer{border-top:1px solid var(--border);padding:28px 52px;display:flex;justify-content:space-between;align-items:center;position:relative;z-index:1}
+.footer-logo{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1px}
 .footer-logo span{color:var(--red)}
 .footer-note{font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace}
-
 /* OPD MODAL */
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(12px)}
 .modal-overlay.open{display:flex}
-.modal{background:var(--bg2);border:0.5px solid var(--border2);border-radius:16px;padding:32px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto}
+.modal{background:linear-gradient(145deg,var(--bg2),var(--bg3));border:0.5px solid var(--border2);border-radius:18px;padding:32px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.6)}
 .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
 .modal-title{font-size:15px;font-weight:500}
 .modal-title span{color:var(--red)}
-.modal-close{background:none;border:none;color:var(--text2);font-size:22px;cursor:pointer;line-height:1;padding:0}
-.modal-close:hover{color:var(--text)}
+.modal-close{background:rgba(255,255,255,0.05);border:0.5px solid var(--border2);color:var(--text2);font-size:18px;cursor:pointer;padding:4px 8px;border-radius:6px;transition:all .2s}
+.modal-close:hover{background:rgba(255,61,31,0.1);color:var(--red)}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
 .form-group{display:flex;flex-direction:column;gap:6px}
 .form-group.full{grid-column:1/-1}
-label{font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;letter-spacing:.5px}
-.auto-tag{font-size:10px;color:var(--teal);background:rgba(20,184,166,0.12);border-radius:3px;padding:1px 5px;margin-left:4px}
-input,textarea{background:var(--bg3);border:0.5px solid var(--border);border-radius:6px;padding:10px 12px;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;width:100%;outline:none;transition:border-color .2s}
-input:focus,textarea:focus{border-color:var(--red)}
+label{font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;letter-spacing:.5px;text-transform:uppercase}
+.auto-tag{font-size:10px;color:var(--teal);background:rgba(20,184,166,0.1);border-radius:3px;padding:1px 5px;margin-left:4px}
+input,textarea{background:rgba(255,255,255,0.03);border:0.5px solid var(--border2);border-radius:8px;padding:11px 13px;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;width:100%;outline:none;transition:all .2s}
+input:focus,textarea:focus{border-color:var(--red);background:rgba(255,255,255,0.05);box-shadow:0 0 0 3px rgba(255,61,31,0.1)}
 input[readonly]{color:var(--text2)}
 .chip-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
-.chip{padding:6px 14px;background:var(--bg3);border:0.5px solid var(--border);border-radius:20px;font-size:12px;cursor:pointer;transition:all .15s;color:var(--text2)}
-.chip.sel{background:rgba(232,52,26,0.12);border-color:var(--red);color:var(--red)}
-.form-submit{width:100%;padding:13px;background:var(--red);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:20px;transition:background .2s}
-.form-submit:hover{background:#c42d16}
+.chip{padding:6px 14px;background:rgba(255,255,255,0.03);border:0.5px solid var(--border);border-radius:20px;font-size:12px;cursor:pointer;transition:all .15s;color:var(--text2)}
+.chip:hover{border-color:var(--border2);color:var(--text)}
+.chip.sel{background:rgba(255,61,31,0.1);border-color:rgba(255,61,31,0.35);color:var(--red)}
+.form-submit{width:100%;padding:13px;background:linear-gradient(135deg,var(--red),#c42d16);color:#fff;border:none;border-radius:9px;font-size:15px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:20px;transition:all .2s;box-shadow:0 0 20px rgba(255,61,31,0.25)}
+.form-submit:hover{transform:translateY(-1px);box-shadow:0 4px 30px rgba(255,61,31,0.45)}
 .success-screen{display:none;text-align:center;padding:20px 0}
 .success-screen.show{display:block}
-.token-badge{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:34px;font-weight:500;color:var(--green);background:rgba(34,197,94,0.08);border:0.5px solid rgba(34,197,94,0.3);border-radius:10px;padding:16px 36px;margin:16px 0}
+.token-badge{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:34px;font-weight:500;color:var(--green);background:rgba(34,197,94,0.07);border:0.5px solid rgba(34,197,94,0.2);border-radius:12px;padding:16px 36px;margin:16px 0;box-shadow:0 0 30px rgba(34,197,94,0.12)}
 .success-note{font-size:13px;color:var(--text2);line-height:1.8}
+@keyframes orbFloat{0%,100%{transform:translate(0,0)}50%{transform:translate(25px,-25px)}}
 </style>
 </head>
 <body>
+<div style="position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden">
+  <div style="position:absolute;width:500px;height:500px;border-radius:50%;background:#FF3D1F;filter:blur(110px);opacity:.11;top:-150px;left:-150px;animation:orbFloat 20s ease-in-out infinite"></div>
+  <div style="position:absolute;width:450px;height:450px;border-radius:50%;background:#4F8EF7;filter:blur(110px);opacity:.09;bottom:-100px;right:-100px;animation:orbFloat 20s ease-in-out infinite;animation-delay:-7s"></div>
+</div>
 
 <nav>
   <a class="nav-logo" href="#">
-    <div class="dot"></div>
+    <div class="nav-logo-icon">
+      <div class="ring"></div>
+      <div class="dot"></div>
+    </div>
     Contagion <span class="red">Grid</span>
   </a>
   <div class="nav-links">
@@ -248,7 +262,7 @@ input[readonly]{color:var(--text2)}
     </div>
     <div id="form-body">
       <div class="form-row">
-        <div class="form-group"><label>FULL NAME <span class="auto-tag">AADHAAR AUTO</span></label><input type="text" id="f-name"  placeholder="Enter your Name"></div>
+        <div class="form-group"><label>FULL NAME <span class="auto-tag">AADHAAR AUTO</span></label><input type="text" id="f-name" placeholder="Enter your Name"></div>
         <div class="form-group"><label>AGE</label><input type="number" id="f-age" value="35"></div>
       </div>
       <div class="form-row">
@@ -292,7 +306,7 @@ input[readonly]{color:var(--text2)}
 </div>
 
 <script>
-// ── DEFAULT DATA (shown when API is offline) ──────────────────────────────
+// ── DEFAULT DATA ──────────────────────────────────────────────────────────
 const DEFAULT_HOSPITALS = [
   {id:0,name:"King George Medical University",loc:"Chowk, Lucknow · Govt. Hospital",dist:"2.4 km",beds:400,avail:120,icu:45,amb:8,doc:45,load:"Moderate Load",opd:true,iso:true},
   {id:1,name:"Ram Manohar Lohia Institute",loc:"Vibhuti Khand, Lucknow · Govt. Hospital",dist:"5.1 km",beds:250,avail:85,icu:30,amb:5,doc:32,load:"Low Load",opd:true,iso:false},
@@ -318,30 +332,42 @@ const AGENTS = [
 ];
 
 // ── RENDER HOSPITALS ──────────────────────────────────────────────────────
-function loadClass(l){return l==="High Load"?"br":l==="Moderate Load"?"ba":"bg"}
+function loadClass(l){
+  if(!l) return 'bg';
+  return l==="High Load"?"br":l==="Moderate Load"?"ba":"bg";
+}
+
+// ✅ BUG FIX: Use ?? (nullish coalescing) so 0 values don't fall through to '—'
+// Also support alternate field names from API (available_beds, icu_beds, etc.)
+function getVal(h, ...keys){
+  for(const k of keys){
+    if(h[k] !== undefined && h[k] !== null) return h[k];
+  }
+  return '—';
+}
 
 function renderHospitals(data){
   document.getElementById("hospitals-grid").innerHTML = data.map(h=>`
-    <div class="hcard${h.load==="High Load"?" high-load":""}">
+    <div class="hcard${(h.load||'')==="High Load"?" high-load":""}">
       <div class="hcard-top">
         <div class="hcard-info">
-          <div class="hcard-name">${h.name}</div>
-          <div class="hcard-loc">${h.loc}</div>
+          <div class="hcard-name">${h.name||'Hospital'}</div>
+          <div class="hcard-loc">${h.loc||h.location||''}</div>
         </div>
-        <div class="hcard-dist">${h.dist}</div>
+        <div class="hcard-dist">${h.dist||h.distance||''}</div>
       </div>
       <div class="hcard-stats">
-        <div class="hs"><div class="hs-num c-green">${h.avail}</div><div class="hs-lbl">Beds free</div></div>
-        <div class="hs"><div class="hs-num c-blue">${h.icu}</div><div class="hs-lbl">ICU</div></div>
-        <div class="hs"><div class="hs-num c-amber">${h.amb}</div><div class="hs-lbl">Ambulance</div></div>
-        <div class="hs"><div class="hs-num">${h.doc}</div><div class="hs-lbl">Doctors</div></div>
+        <div class="hs"><div class="hs-num c-green">${getVal(h,'avail','available_beds','free_beds')}</div><div class="hs-lbl">Beds free</div></div>
+        <div class="hs"><div class="hs-num c-blue">${getVal(h,'icu','icu_beds','icu_available')}</div><div class="hs-lbl">ICU</div></div>
+        <div class="hs"><div class="hs-num c-amber">${getVal(h,'amb','ambulances','ambulance_count')}</div><div class="hs-lbl">Ambulance</div></div>
+        <div class="hs"><div class="hs-num">${getVal(h,'doc','doctors','doctor_count')}</div><div class="hs-lbl">Doctors</div></div>
       </div>
       <div class="badges">
-        ${h.opd?'<span class="badge bg">OPD Open</span>':''}
-        ${h.iso?'<span class="badge bb">Isolation Ward</span>':''}
-        <span class="badge ${loadClass(h.load)}">${h.load}</span>
+        ${(h.opd||h.opd_open)?'<span class="badge bg">OPD Open</span>':''}
+        ${(h.iso||h.isolation_ward)?'<span class="badge bb">Isolation Ward</span>':''}
+        <span class="badge ${loadClass(h.load)}">${h.load||'Low Load'}</span>
       </div>
-      <button class="opd-btn" onclick='openOPD(${h.id},"${h.name}")'>Book OPD →</button>
+      <button class="opd-btn" onclick='openOPD(${h.id||0},"${(h.name||'').replace(/"/g,"&quot;")}")'>Book OPD →</button>
     </div>
   `).join('');
 }
@@ -364,11 +390,11 @@ function renderAgents(){
 
 // ── RENDER INTEL SIDEBAR ──────────────────────────────────────────────────
 function renderSidebar(d){
-  const t = (offset)=>{
-    const dt = new Date(Date.now()-offset*60000);
+  const t=(offset)=>{
+    const dt=new Date(Date.now()-offset*60000);
     return dt.getHours().toString().padStart(2,'0')+':'+dt.getMinutes().toString().padStart(2,'0');
   };
-  document.getElementById("intel-sidebar").innerHTML = `
+  document.getElementById("intel-sidebar").innerHTML=`
     <div class="icard green">
       <div class="icard-header">
         <div class="icard-title">CMO CONFIRMED · All 5 Agents Active</div>
@@ -421,41 +447,55 @@ function renderSidebar(d){
   `;
 }
 
-// ── LIVE API FETCH (auto-updates from your FastAPI backend) ───────────────
+// ── LIVE API FETCH ────────────────────────────────────────────────────────
 async function fetchLiveData(){
-  // Fetch report.json output from ContagionGrid pipeline
+  // Fetch report.json
   try{
-    const r = await fetch('/output/report.json');
+    const r=await fetch('/output/report.json');
     if(!r.ok) throw new Error();
-    const data = await r.json();
-    const intel = {
-      disease: data.disease || DEFAULT_INTEL.disease,
-      cases: data.initial_cases || DEFAULT_INTEL.cases,
-      suspected: data.initial_cases ? (data.initial_cases*5)+'+' : DEFAULT_INTEL.suspected,
-      zones: data.origin_zone || DEFAULT_INTEL.zones,
-      wards: data.red_zones || DEFAULT_INTEL.wards,
-      road_blocked: data.road_blocked || DEFAULT_INTEL.road_blocked,
-      road_open: data.road_open || DEFAULT_INTEL.road_open,
-      dm_order: data.dm_order || DEFAULT_INTEL.dm_order,
+    const data=await r.json();
+    const intel={
+      disease: data.disease||DEFAULT_INTEL.disease,
+      cases: data.initial_cases||DEFAULT_INTEL.cases,
+      suspected: data.initial_cases?(data.initial_cases*5)+'+':DEFAULT_INTEL.suspected,
+      zones: data.origin_zone||DEFAULT_INTEL.zones,
+      wards: data.red_zones||DEFAULT_INTEL.wards,
+      road_blocked: data.road_blocked||DEFAULT_INTEL.road_blocked,
+      road_open: data.road_open||DEFAULT_INTEL.road_open,
+      dm_order: data.dm_order||DEFAULT_INTEL.dm_order,
     };
     renderSidebar(intel);
   }catch(e){renderSidebar(DEFAULT_INTEL)}
 
-  // Fetch hospital CSV data via API
+  // ✅ BUG FIX: Only replace default hospitals if API returns valid data
+  // Valid = array exists, has items, AND each hospital has non-null stats
   try{
-    const r2 = await fetch('/api/hospitals');
+    const r2=await fetch('/api/hospitals');
     if(!r2.ok) throw new Error();
-    const h = await r2.json();
-    if(h && h.length) renderHospitals(h);
-  }catch(e){}
+    const h=await r2.json();
+    if(h && Array.isArray(h) && h.length > 0){
+      // Check that hospitals have at least some real data
+      const hasRealData = h.some(hosp =>
+        (hosp.avail||hosp.available_beds||hosp.free_beds) > 0 ||
+        (hosp.icu||hosp.icu_beds) > 0 ||
+        (hosp.doc||hosp.doctors) > 0
+      );
+      if(hasRealData){
+        renderHospitals(h);
+      }
+      // else: API returned hospitals with all zeros — keep DEFAULT_HOSPITALS
+    }
+  }catch(e){
+    // API offline or error — keep DEFAULT_HOSPITALS already rendered on init
+  }
 }
 
 // ── OPD MODAL ─────────────────────────────────────────────────────────────
-let currentHospName = '';
-function openOPD(id, name){
-  currentHospName = name;
-  document.getElementById("modal-hosp-name").textContent = name;
-  document.getElementById("form-body").style.display = "block";
+let currentHospName='';
+function openOPD(id,name){
+  currentHospName=name;
+  document.getElementById("modal-hosp-name").textContent=name;
+  document.getElementById("form-body").style.display="block";
   document.getElementById("success-screen").classList.remove("show");
   document.getElementById("modal-overlay").classList.add("open");
 }
@@ -463,12 +503,11 @@ function closeModalBg(e){if(e.target===document.getElementById("modal-overlay"))
 function closeModalFull(){document.getElementById("modal-overlay").classList.remove("open")}
 function toggleChip(el){el.classList.toggle("sel")}
 function submitOPD(){
-  const token = "TKN-"+(Math.floor(Math.random()*9000)+1000);
-  document.getElementById("token-display").textContent = token;
-  document.getElementById("form-body").style.display = "none";
+  const token="TKN-"+(Math.floor(Math.random()*9000)+1000);
+  document.getElementById("token-display").textContent=token;
+  document.getElementById("form-body").style.display="none";
   document.getElementById("success-screen").classList.add("show");
-  const symptoms = [...document.querySelectorAll(".chip.sel")].map(c=>c.textContent);
-  // POST to FastAPI — hospital dashboard auto-updates
+  const symptoms=[...document.querySelectorAll(".chip.sel")].map(c=>c.textContent);
   fetch("/api/opd/book",{
     method:"POST",
     headers:{"Content-Type":"application/json"},
@@ -484,10 +523,11 @@ function submitOPD(){
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────
-renderHospitals(DEFAULT_HOSPITALS);
+renderHospitals(DEFAULT_HOSPITALS); // Show default data immediately
 renderAgents();
-fetchLiveData();
-setInterval(fetchLiveData, 30000); // auto-refresh every 30s
+renderSidebar(DEFAULT_INTEL);       // Show default intel immediately
+fetchLiveData();                    // Then try to fetch live data
+setInterval(fetchLiveData,30000);   // Auto-refresh every 30s
 </script>
 </body>
 </html>
