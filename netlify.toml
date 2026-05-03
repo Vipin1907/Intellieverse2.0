@@ -1,0 +1,9 @@
+[build]
+  # Netlify will only publish the static HTML/CSS/JS frontend files.
+  publish = "web"
+
+# Redirect all routing to index.html (useful if you use a client-side router, though you seem to have multiple HTML files)
+# [[redirects]]
+#   from = "/*"
+#   to = "/index.html"
+#   status = 200
