@@ -2,6 +2,13 @@ services:
   - type: web
     name: contagiongrid
     env: python
+    region: singapore
+    plan: free
     buildCommand: "pip install -r requirements.txt"
     startCommand: "uvicorn app:app --host 0.0.0.0 --port $PORT"
-    plan: free
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false          # set manually in Render dashboard
+      - key: MONGO_URL
+        sync: false          # set manually in Render dashboard
+    autoDeploy: true
